@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "12092742398",
+    "project_id": "yumhub-483b7",
+    "storage_bucket": "yumhub-483b7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12092742398:android:0112f6e89bddbe0daf63af",
+        "android_client_info": {
+          "package_name": "com.example.food_recipe_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "12092742398-e0jvjstiugpsvtkg06qh0qaf3dam57uj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.food_recipe_app",
+            "certificate_hash": "5541553e81726cd366a066e75518b06df5aaa5a7"
+          }
+        },
+        {
+          "client_id": "12092742398-85ncp6co83ret3rd10i70mcf9rovn93u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpswiu37WQq8qBLETcGhnaaYEnlY-26DY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "12092742398-85ncp6co83ret3rd10i70mcf9rovn93u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "12092742398-11div5i6v7s0dphepo3ghj1ilbspube2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.foodRecipeApp.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12092742398:android:9dbf2c33b870ffa5af63af",
+        "android_client_info": {
+          "package_name": "yumhub.my.fyp1_yumhub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "12092742398-5uuj8necclhd3uhv8slk97r9guha5g02.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "yumhub.my.fyp1_yumhub",
+            "certificate_hash": "5541553e81726cd366a066e75518b06df5aaa5a7"
+          }
+        },
+        {
+          "client_id": "12092742398-85ncp6co83ret3rd10i70mcf9rovn93u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpswiu37WQq8qBLETcGhnaaYEnlY-26DY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "12092742398-85ncp6co83ret3rd10i70mcf9rovn93u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "12092742398-11div5i6v7s0dphepo3ghj1ilbspube2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.foodRecipeApp.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>12092742398-11div5i6v7s0dphepo3ghj1ilbspube2.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.12092742398-11div5i6v7s0dphepo3ghj1ilbspube2</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>12092742398-5uuj8necclhd3uhv8slk97r9guha5g02.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAkp-WuE_iw1kMoeiJs9lpbJuK_fsTpcoo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>12092742398</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.foodRecipeApp.RunnerTests</string>
+	<key>PROJECT_ID</key>
+	<string>yumhub-483b7</string>
+	<key>STORAGE_BUCKET</key>
+	<string>yumhub-483b7.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:12092742398:ios:f8d4c332dfa7f1eeaf63af</string>
+</dict>
+</plist>
