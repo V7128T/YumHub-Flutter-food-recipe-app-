@@ -11,8 +11,7 @@ class SearchAutoComplete {
     return SearchAutoComplete(
       id: json['id'].toString(),
       name: json['title'],
-      image:
-          "https://spoonacular.com/recipeImages/${json['id']}-556x370.${json['imageType']}",
+      image: "https://img.spoonacular.com/recipes/${json['id']}-556x370.jpg",
     );
   }
 }

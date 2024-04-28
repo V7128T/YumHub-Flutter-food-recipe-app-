@@ -5,12 +5,16 @@ import 'package:food_recipe_app/screens/favourite_screen/favourite_screen.dart';
 import 'package:food_recipe_app/screens/home_screen/bloc/homerecipe_bloc.dart';
 import 'package:food_recipe_app/screens/home_screen/home_screen.dart';
 import 'package:food_recipe_app/screens/more/more.dart';
-import 'package:food_recipe_app/screens/profile_screen/profile.dart';
+import 'package:food_recipe_app/screens/profile_screen/bloc/profile_bloc.dart';
+import 'package:food_recipe_app/screens/profile_screen/bloc/profile_event.dart';
+import 'package:food_recipe_app/screens/profile_screen/profile_page.dart';
 import 'package:food_recipe_app/screens/search_page/cubit/search_page_cubit.dart';
 import 'package:food_recipe_app/screens/search_page/search_page_screen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class BottomNavView extends StatefulWidget {
+  const BottomNavView({super.key});
+
   @override
   _BottomNavViewState createState() => _BottomNavViewState();
 }
@@ -29,7 +33,10 @@ class _BottomNavViewState extends State<BottomNavView> {
     ),
     const FavoriteScreen(),
     const More(),
-    const userProfile(),
+    BlocProvider(
+      create: (context) => ProfileBloc()..add(LoadProfile()),
+      child: const ProfilePage(),
+    ),
   ];
 
   ///Bottom Navigation Bar Childrens

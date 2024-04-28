@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:food_recipe_app/models/recipe.dart';
 import 'package:hive/hive.dart';
 
-
 ///Heart Button : Adding Items in favourite list
 class FavoriteButton extends StatelessWidget {
   final Recipe info;
@@ -17,6 +16,7 @@ class FavoriteButton extends StatelessWidget {
         final box = Hive.box("Favorite");
         box.delete(info.id);
       },
+      heroTag: null,
       child: const Icon(
         Icons.favorite,
       ),

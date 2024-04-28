@@ -7,8 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 class EquipmentsListView extends StatelessWidget {
   final List<Equipment> equipments;
 
-  const EquipmentsListView({Key? key, required this.equipments})
-      : super(key: key);
+  const EquipmentsListView({super.key, required this.equipments});
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -41,9 +40,13 @@ class EquipmentsListView extends StatelessWidget {
                         )
                       ],
                       image: DecorationImage(
-                          fit: BoxFit.contain,
-                          image: CachedNetworkImageProvider(
-                              "https://spoonacular.com/cdn/equipment_100x100/${equipment.image}")),
+                        fit: BoxFit.contain,
+                        image: CachedNetworkImageProvider(
+                          "https://spoonacular.com/cdn/equipment_100x100/${equipment.image}",
+                          maxWidth: 556,
+                          maxHeight: 370,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),

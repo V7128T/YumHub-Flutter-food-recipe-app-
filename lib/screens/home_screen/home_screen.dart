@@ -14,7 +14,7 @@ import 'package:food_recipe_app/widgets/loading_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeRecipeScreen extends StatefulWidget {
-  const HomeRecipeScreen({Key? key}) : super(key: key);
+  const HomeRecipeScreen({super.key});
 
   @override
   State<HomeRecipeScreen> createState() => _HomeRecipeScreenState();
@@ -236,11 +236,13 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
         children: [
           DelayedDisplay(
             delay: const Duration(microseconds: 600),
-            child: Text(name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                )),
+            child: Text(
+              name,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
           ),
           IconButton(
               onPressed: () {

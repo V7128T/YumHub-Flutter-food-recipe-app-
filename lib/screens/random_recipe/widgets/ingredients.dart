@@ -37,7 +37,7 @@ class IngredientsWidget extends StatelessWidget {
                           const SizedBox(height: 20),
                           Container(
                             height: 250,
-                            width: 250,
+                            width: 500,
                             decoration: BoxDecoration(
                               color: Colors.grey[50],
                             ),
@@ -46,6 +46,8 @@ class IngredientsWidget extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: CachedNetworkImage(
+                                memCacheWidth: 556,
+                                memCacheHeight: 370,
                                 imageUrl:
                                     "https://spoonacular.com/cdn/ingredients_500x500/${ingredient.image}",
                               ),

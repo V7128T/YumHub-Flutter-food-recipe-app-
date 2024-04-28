@@ -5,11 +5,10 @@ import 'package:food_recipe_app/models/food_type.dart';
 import 'package:food_recipe_app/screens/recipe_info/bloc/recipe_info_bloc.dart';
 import 'package:food_recipe_app/screens/recipe_info/recipe_info_screen.dart';
 
-
 class FoodTypeWidget extends StatelessWidget {
   final List<FoodType> items;
 
-  const FoodTypeWidget({Key? key, required this.items}) : super(key: key);
+  const FoodTypeWidget({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +30,9 @@ class FoodTypeWidget extends StatelessWidget {
 
 class RecipeCardType extends StatefulWidget {
   const RecipeCardType({
-    Key? key,
+    super.key,
     required this.items,
-  }) : super(key: key);
+  });
 
   final FoodType items;
 
@@ -98,7 +97,8 @@ class _RecipeCardTypeState extends State<RecipeCardType> {
                       child: CachedNetworkImage(
                         imageUrl: widget.items.image,
                         fit: BoxFit.cover,
-                        height: 150,
+                        memCacheHeight: 150,
+                        memCacheWidth: 200,
                       ),
                     ),
                   ),
@@ -115,9 +115,10 @@ class _RecipeCardTypeState extends State<RecipeCardType> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     child: Text(
-                      "Ready in " + widget.items.readyInMinutes + " Min",
+                      "Ready in ${widget.items.readyInMinutes} Min",
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).primaryColor),

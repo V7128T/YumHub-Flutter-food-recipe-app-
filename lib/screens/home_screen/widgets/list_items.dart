@@ -9,9 +9,9 @@ import 'package:food_recipe_app/screens/recipe_info/recipe_info_screen.dart';
 class ListItem extends StatefulWidget {
   final FoodType meal;
   const ListItem({
-    Key? key,
+    super.key,
     required this.meal,
-  }) : super(key: key);
+  });
 
   @override
   _Listmealtate createState() => _Listmealtate();

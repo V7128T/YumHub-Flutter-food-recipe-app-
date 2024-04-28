@@ -30,10 +30,13 @@ class _LoginPageState extends State<LoginPage> {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
 
+      Future.delayed(
+        const Duration(seconds: 2),
+      );
       Navigator.push(
           context,
           PageTransition(
-              type: PageTransitionType.fade, child: BottomNavView()));
+              type: PageTransitionType.fade, child: const BottomNavView()));
     } on FirebaseAuthException catch (e) {
       print(e);
       if (e.code == 'user-not-found') {

@@ -201,7 +201,8 @@ class _RacipeInfoWidgetState extends State<RacipeInfoWidget> {
                         recipe: widget.info,
                       ),
                     ),
-                  if (widget.info.instructions != null)
+                  if (widget.info.analyzedInstructions != null &&
+                      widget.info.analyzedInstructions!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.all(26.0),
                       child: Column(
@@ -219,6 +220,155 @@ class _RacipeInfoWidgetState extends State<RacipeInfoWidget> {
                             ),
                           ),
                           const SizedBox(height: 20),
+                          ...widget.info.analyzedInstructions!
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                            final instructionIndex = entry.key;
+                            final instruction = entry.value;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (instruction.name != null &&
+                                    instruction.name!.isNotEmpty)
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(10),
+                                    color: Colors.grey[200],
+                                    child: Text(
+                                      instruction.name!,
+                                      style: GoogleFonts.chivo(
+                                        textStyle: const TextStyle(
+                                          fontSize: 17.0,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ...instruction.steps!
+                                    .asMap()
+                                    .entries
+                                    .map((stepEntry) {
+                                  final stepIndex = stepEntry.key;
+                                  final step = stepEntry.value;
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    padding: const EdgeInsets.all(15),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: 30,
+                                              height: 30,
+                                              decoration: const BoxDecoration(
+                                                color: Colors.orange,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                (stepIndex + 1).toString(),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: RichText(
+                                                textAlign: TextAlign.justify,
+                                                text: TextSpan(
+                                                  text: step.step,
+                                                  style: GoogleFonts.chivo(
+                                                    textStyle: const TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        if (step.ingredients != null &&
+                                            step.ingredients!.isNotEmpty)
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(height: 8),
+                                              const Text(
+                                                "🥕 Ingredients:",
+                                                style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              ...step.ingredients!
+                                                  .map((ingredient) {
+                                                return Text(
+                                                  "- ${ingredient.name}",
+                                                  style: const TextStyle(
+                                                    fontSize: 14.0,
+                                                    color: Colors.grey,
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ],
+                                          ),
+                                        if (step.equipment != null &&
+                                            step.equipment!.isNotEmpty)
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(height: 8),
+                                              const Text(
+                                                "🍳 Utensils:",
+                                                style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              ...step.equipment!
+                                                  .map((equipment) {
+                                                return Text(
+                                                  "- ${equipment.name}",
+                                                  style: const TextStyle(
+                                                    fontSize: 14.0,
+                                                    color: Colors.grey,
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            );
+                          }).toList(),
                         ],
                       ),
                     ),
@@ -226,7 +376,7 @@ class _RacipeInfoWidgetState extends State<RacipeInfoWidget> {
                     Padding(
                       padding: const EdgeInsets.all(26.0),
                       child: Text(
-                        "Equipments",
+                        "Utensils",
                         style: GoogleFonts.workSans(
                           textStyle: const TextStyle(
                             fontSize: 20.0,

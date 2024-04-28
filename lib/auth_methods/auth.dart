@@ -5,10 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthMethods {
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  static final FirebaseAuth auth = FirebaseAuth.instance;
 
   getCurrentUser() async {
     return auth.currentUser;
+  }
+
+  static bool isGuestUser(User? user) {
+    return user != null && user.isAnonymous;
+  }
+
+  static Future<User?> signInAnonymously() async {
+    try {
+      UserCredential userCredential = await auth.signInAnonymously();
+      return userCredential.user;
+    } catch (e) {
+      print('Error signing in as guest: $e');
+      return null;
+    }
+  }
+
+  static Future<void> signOut() async {
+    await auth.signOut();
   }
 
   signInWithGoogle(BuildContext context) async {

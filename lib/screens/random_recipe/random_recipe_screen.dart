@@ -24,7 +24,8 @@ class _RandomRecipeState extends State<RandomRecipe> {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+      data: MediaQuery.of(context)
+          .copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Scaffold(
         backgroundColor: Colors.white,
         body: BlocBuilder<RandomRecipeBloc, RandomRecipeState>(
@@ -42,7 +43,7 @@ class _RandomRecipeState extends State<RandomRecipe> {
             } else if (state is RandomRecipeErrorState) {
               ///On Failure
               return const Center(
-                child: Text("Error"),
+                child: Text("An error occured.. Please try again later."),
               );
             } else {
               return const Center(
