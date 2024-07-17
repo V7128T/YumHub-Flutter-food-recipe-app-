@@ -119,7 +119,7 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
           child: DelayedDisplay(
             delay: Duration(microseconds: 600),
             child: Text(
-              "Simple Way to find \nTasty food",
+              "Simplest Way to Find \nTasty Food",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 26,

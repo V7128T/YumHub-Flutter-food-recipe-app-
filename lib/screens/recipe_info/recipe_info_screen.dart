@@ -40,6 +40,7 @@ class _RecipeInfoState extends State<RecipeInfo> {
                 info: state.recipe,
                 nutrient: state.nutrient,
                 similarlist: state.similar,
+                recipeId: state.recipe.id.toString(),
               );
             } else if (state is RecipeInfoErrorState) {
               ///On Displaying Error

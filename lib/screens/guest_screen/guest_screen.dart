@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:food_recipe_app/auth_methods/auth.dart';
 import 'package:food_recipe_app/screens/authentication_screen/email_signup_page.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:google_fonts/google_fonts.dart';

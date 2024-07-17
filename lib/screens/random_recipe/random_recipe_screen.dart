@@ -39,6 +39,7 @@ class _RandomRecipeState extends State<RandomRecipe> {
                 info: state.recipe,
                 nutrient: state.nutrient,
                 similarlist: state.similar,
+                recipeId: state.recipe.id.toString(),
               );
             } else if (state is RandomRecipeErrorState) {
               ///On Failure

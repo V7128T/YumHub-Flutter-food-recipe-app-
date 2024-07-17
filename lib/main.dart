@@ -4,10 +4,12 @@ import 'package:food_recipe_app/auth_methods/auth.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:food_recipe_app/screens/nav/bottom_nav_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:food_recipe_app/custom_colors/app_colors.dart';
 import 'package:food_recipe_app/screens/authentication_screen/signin.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:food_recipe_app/models/user_ingredient_list.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,12 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => UserIngredientList(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_recipe_app/screens/favourite_screen/favourite_screen.dart';
 import 'package:food_recipe_app/screens/home_screen/bloc/homerecipe_bloc.dart';
 import 'package:food_recipe_app/screens/home_screen/home_screen.dart';
 import 'package:food_recipe_app/screens/more/more.dart';
@@ -11,6 +10,7 @@ import 'package:food_recipe_app/screens/profile_screen/profile_page.dart';
 import 'package:food_recipe_app/screens/search_page/cubit/search_page_cubit.dart';
 import 'package:food_recipe_app/screens/search_page/search_page_screen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:food_recipe_app/screens/ingredient_screen/ingredient_manager_screen.dart';
 
 class BottomNavView extends StatefulWidget {
   const BottomNavView({super.key});
@@ -31,7 +31,7 @@ class _BottomNavViewState extends State<BottomNavView> {
       create: (context) => SearchPageCubit(),
       child: const SearchPage(),
     ),
-    const FavoriteScreen(),
+    const IngredientManagerPage(),
     const More(),
     BlocProvider(
       create: (context) => ProfileBloc()..add(LoadProfile()),
