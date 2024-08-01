@@ -21,7 +21,7 @@ class EmailSignUp extends StatefulWidget {
 
 class _EmailSignUpState extends State<EmailSignUp> {
   String name = "", password = "", email = "";
-  String? uid;
+  String uid = "";
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -100,10 +100,13 @@ class _EmailSignUpState extends State<EmailSignUp> {
       try {
         UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
-                email: email.trim(), password: password.trim());
+                email: emailController.text.trim(),
+                password: passwordController.text.trim());
         uid = userCredential.user!.uid;
-        await FirebaseAuth.instance.currentUser!.updateDisplayName(name.trim());
-        await FirestoreServices.saveUser(name.trim(), email.trim(), uid);
+        await FirebaseAuth.instance.currentUser!
+            .updateDisplayName(nameController.text.trim());
+        await FirestoreServices.saveUser(
+            emailController.text.trim(), uid, nameController.text.trim(), []);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -170,7 +173,7 @@ class _EmailSignUpState extends State<EmailSignUp> {
             // Delete user account and signout if the user cancelled the email verification
             await FirebaseAuth.instance.currentUser!.delete();
             await FirebaseAuth.instance.signOut();
-            await FirestoreServices.deleteUser(name, email, uid);
+            await FirestoreServices.deleteUser(uid);
           },
         );
       },

@@ -93,9 +93,9 @@ class _SearchResultsState extends State<SearchResults> {
 class SearchResultItem extends StatefulWidget {
   final SearchResult result;
   const SearchResultItem({
-    Key? key,
+    super.key,
     required this.result,
-  }) : super(key: key);
+  });
 
   @override
   _SearchResultresulttate createState() => _SearchResultresulttate();

@@ -67,4 +67,5 @@ class DefaultFirebaseOptions {
     iosClientId: '12092742398-14i5rc99u31ttjihc6rjb6rck0nl1v29.apps.googleusercontent.com',
     iosBundleId: 'com.example.foodRecipeApp',
   );
+
 }

@@ -1,18 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:food_recipe_app/models/extended_ingredient.dart';
 import 'package:food_recipe_app/models/user_ingredient_list.dart';
 import 'package:food_recipe_app/repo/get_recipe_info.dart';
+import 'package:food_recipe_app/models/recipe.dart';
 
 class IngredientSelectionScreen extends StatefulWidget {
   final List<ExtendedIngredient> recipeIngredients;
   final String recipeId;
+  final String recipeTitle;
 
   const IngredientSelectionScreen({
-    super.key,
+    Key? key,
     required this.recipeIngredients,
     required this.recipeId,
-  });
+    required this.recipeTitle,
+  }) : super(key: key);
 
   @override
   _IngredientSelectionScreenState createState() =>
@@ -44,7 +48,6 @@ class _IngredientSelectionScreenState extends State<IngredientSelectionScreen> {
       final recipeData = await getRecipeInfo.getRecipeInfo(recipeId);
       return recipeData[0].extendedIngredients ?? [];
     } catch (e) {
-      // Handle any errors that occur during the API call
       print('Error fetching recipe ingredients: $e');
       return [];
     }
@@ -61,8 +64,16 @@ class _IngredientSelectionScreenState extends State<IngredientSelectionScreen> {
   }
 
   void _addSelectedIngredients() {
-    Provider.of<UserIngredientList>(context, listen: false)
-        .addIngredients(_selectedIngredients, widget.recipeId);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final recipe = Recipe(
+        id: int.tryParse(widget.recipeId),
+        title: widget.recipeTitle,
+        extendedIngredients: _selectedIngredients.toList(),
+      );
+      Provider.of<UserIngredientList>(context, listen: false)
+          .addRecipe(recipe, user.uid);
+    }
     Navigator.pop(context);
   }
 

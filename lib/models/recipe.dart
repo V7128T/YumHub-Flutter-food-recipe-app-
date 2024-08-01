@@ -100,7 +100,7 @@ class Recipe {
         extendedIngredients: (json['extendedIngredients'] as List<dynamic>?)
             ?.map((e) => ExtendedIngredient.fromJson(e))
             .toList(),
-        id: json['id'] as int?,
+        id: json['id'],
         title: json['title'] as String?,
         readyInMinutes: json['readyInMinutes'] as int?,
         servings: json['servings'] as int?,

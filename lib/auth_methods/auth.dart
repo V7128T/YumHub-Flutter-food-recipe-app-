@@ -1,8 +1,11 @@
+import 'package:food_recipe_app/models/extended_ingredient.dart';
+import 'package:food_recipe_app/models/user_ingredient_list.dart';
 import 'package:food_recipe_app/screens/nav/bottom_nav_screen.dart';
-import 'database.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:food_recipe_app/auth_methods/firebaseFunctions.dart';
 
 class AuthMethods {
   static final FirebaseAuth auth = FirebaseAuth.instance;
@@ -18,11 +21,20 @@ class AuthMethods {
   static Future<User?> signInAnonymously() async {
     try {
       UserCredential userCredential = await auth.signInAnonymously();
-      return userCredential.user;
+      User? user = userCredential.user;
+      if (user != null) {
+        await _initializeGuestUserData(user.uid);
+      }
+      return user;
     } catch (e) {
       print('Error signing in as guest: $e');
       return null;
     }
+  }
+
+  static Future<void> _initializeGuestUserData(String uid) async {
+    await FirestoreServices.saveUser(
+        "Guest User", "guest@example.com", uid, []);
   }
 
   static Future<void> signOut() async {
@@ -54,12 +66,15 @@ class AuthMethods {
         "imgUrl": userDetails.photoURL,
         "id": userDetails.uid
       };
-      await DatabaseMethods()
-          .addUser(userDetails.uid, userInfoMap)
-          .then((value) {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => BottomNavView()));
-      });
+      await FirestoreServices.saveUser(
+          userDetails.displayName ?? "Guest User",
+          userDetails.email ?? "guest@example.com",
+          userDetails.uid,
+          [ExtendedIngredient()]);
+      Provider.of<UserIngredientList>(context, listen: false)
+          .loadUserIngredients(userDetails.uid);
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const BottomNavView()));
     }
   }
 }

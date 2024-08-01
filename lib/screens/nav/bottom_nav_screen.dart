@@ -11,6 +11,7 @@ import 'package:food_recipe_app/screens/search_page/cubit/search_page_cubit.dart
 import 'package:food_recipe_app/screens/search_page/search_page_screen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:food_recipe_app/screens/ingredient_screen/ingredient_manager_screen.dart';
+import 'package:food_recipe_app/repo/get_recipe_by_ingredients.dart';
 
 class BottomNavView extends StatefulWidget {
   const BottomNavView({super.key});
@@ -18,6 +19,8 @@ class BottomNavView extends StatefulWidget {
   @override
   _BottomNavViewState createState() => _BottomNavViewState();
 }
+
+final _recipeRepository = RecipeRepository();
 
 class _BottomNavViewState extends State<BottomNavView> {
   late PersistentTabController _controller;
@@ -28,7 +31,7 @@ class _BottomNavViewState extends State<BottomNavView> {
       child: const HomeRecipeScreen(),
     ),
     BlocProvider(
-      create: (context) => SearchPageCubit(),
+      create: (context) => SearchPageCubit(_recipeRepository),
       child: const SearchPage(),
     ),
     const IngredientManagerPage(),
@@ -63,11 +66,11 @@ class _BottomNavViewState extends State<BottomNavView> {
       PersistentBottomNavBarItem(
         inactiveColorPrimary: Colors.grey.shade600,
         icon: const Icon(
-          CupertinoIcons.heart_fill,
+          Icons.local_grocery_store,
         ),
         iconSize: 20,
         activeColorPrimary: Colors.redAccent,
-        title: ("Favorite"),
+        title: ("Ingredient"),
       ),
       PersistentBottomNavBarItem(
         inactiveColorPrimary: Colors.grey.shade600,
