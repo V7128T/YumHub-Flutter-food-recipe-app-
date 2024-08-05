@@ -22,12 +22,12 @@ class AddAllIngredientsButton extends StatefulWidget {
   final String? recipeImage;
 
   const AddAllIngredientsButton({
-    Key? key,
+    super.key,
     required this.ingredients,
     required this.recipeId,
     required this.recipeTitle,
     this.recipeImage,
-  }) : super(key: key);
+  });
 
   @override
   _AddAllIngredientsButtonState createState() =>
@@ -139,13 +139,13 @@ class RacipeInfoWidget extends StatefulWidget {
   final String recipeId;
 
   const RacipeInfoWidget({
-    Key? key,
+    super.key,
     required this.info,
     required this.similarlist,
     required this.equipment,
     required this.nutrient,
     required this.recipeId,
-  }) : super(key: key);
+  });
 
   @override
   State<RacipeInfoWidget> createState() => _RacipeInfoWidgetState();

@@ -1,0 +1,135 @@
+{
+    "recipes": [
+      {
+        "id": 1,
+        "name": "Pesto & Yogurt Pasta",
+        "servings": 4,
+        "ingredients": [
+          {"id": 1, "name": "farfalle", "amount": 0.227, "unit": "kg"},
+          {"id": 2, "name": "flat leaf parsley", "amount": 90, "unit": "gram"},
+          {"id": 3, "name": "garlic", "amount": 3, "unit": "clove"},
+          {"id": 4, "name": "yogurt", "amount": 61.25, "unit": "ml"},
+          {"id": 5, "name": "nuts", "amount": 36, "unit": "gram"},
+          {"id": 6, "name": "olive oil", "amount": 2, "unit": "tablespoon"},
+          {"id": 7, "name": "parmesan cheese", "amount": 25, "unit": "gram"},
+          {"id": 8, "name": "salt", "amount": 1, "unit": "serving"},
+          {"id": 9, "name": "pepper", "amount": 1, "unit": "serving"}
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Kimchi",
+        "servings": 6,
+        "ingredients": [
+          {"id": 10, "name": "napa cabbage", "amount": 2.72, "unit": "kg"},
+          {"id": 11, "name": "salt", "amount": 3, "unit": "tablespoon"},
+          {"id": 12, "name": "scallions", "amount": 200, "unit": "gram"},
+          {"id": 13, "name": "garlic", "amount": 3, "unit": "clove"},
+          {"id": 14, "name": "ginger root", "amount": 1, "unit": "tablespoon"},
+          {"id": 15, "name": "ground chilli pepper", "amount": 4, "unit": "tablespoon"},
+          {"id": 16, "name": "sugar", "amount": 2, "unit": "tablespoon"}
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Beef Wellington",
+        "servings": 6,
+        "ingredients": [
+          {"id": 17, "name": "duck", "amount": 0.227, "unit": "kg"},
+          {"id": 18, "name": "egg", "amount": 1, "unit": "piece"},
+          {"id": 19, "name": "milk", "amount": 2, "unit": "tablespoon"},
+          {"id": 20, "name": "mushrooms", "amount": 226.796, "unit": "gram"},
+          {"id": 21, "name": "onion", "amount": 1, "unit": "piece"},
+          {"id": 22, "name": "pepper", "amount": 0.25, "unit": "tablespoon"},
+          {"id": 23, "name": "puff pastry", "amount": 489.029, "unit": "gram"},
+          {"id": 24, "name": "red wine", "amount": 2, "unit": "tablespoon"},
+          {"id": 25, "name": "beef tenderloin roast", "amount": 2.722, "unit": "kg"},
+          {"id": 26, "name": "salt", "amount": 0.5, "unit": "tablespoon"},
+          {"id": 27, "name": "thyme leaves", "amount": 0.5, "unit": "tablespoon"}
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Orecchiette Carbonara",
+        "servings": 4,
+        "ingredients": [
+          {"id": 28, "name": "applewood bacon", "amount": 4, "unit": "slice"},
+          {"id": 29, "name": "cremini mushrooms", "amount": 72, "unit": "ml"},
+          {"id": 30, "name": "eggs", "amount": 2, "unit": "piece"},
+          {"id": 31, "name": "kosher salt", "amount": 1, "unit": "serving"},
+          {"id": 32, "name": "pepper", "amount": 1, "unit": "serving"},
+          {"id": 33, "name": "leeks", "amount": 2, "unit": "piece"},
+          {"id": 34, "name": "olive oil", "amount": 1, "unit": "tablespoon"},
+          {"id": 35, "name": "orecchiette", "amount": 250, "unit": "gram"},
+          {"id": 36, "name": "parmesan cheese", "amount": 50, "unit": "gram"},
+          {"id": 37, "name": "parsley", "amount": 1, "unit": "tablespoon"},
+          {"id": 38, "name": "fresh peas", "amount": 72.5, "unit": "gram"}
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Nasi Minyak (Malaysian Festive Rice)",
+        "servings": 6,
+        "ingredients": [
+          {"id": 39, "name": "ghee", "amount": 2, "unit": "tablespoon"},
+          {"id": 40, "name": "onion", "amount": 1, "unit": "piece"},
+          {"id": 41, "name": "garlic", "amount": 2, "unit": "clove"},
+          {"id": 42, "name": "ginger", "amount": 1, "unit": "teaspoon"},
+          {"id": 43, "name": "cinnamon", "amount": 1, "unit": "stick"},
+          {"id": 44, "name": "star anise", "amount": 3, "unit": "piece"},
+          {"id": 45, "name": "cloves", "amount": 3, "unit": "piece"},
+          {"id": 46, "name": "cardamoms", "amount": 3, "unit": "piece"},
+          {"id": 47, "name": "water", "amount": 354.882, "unit": "ml"},
+          {"id": 48, "name": "evaporated milk", "amount": 126, "unit": "ml"},
+          {"id": 49, "name": "basmati rice", "amount": 185, "unit": "gram"},
+          {"id": 50, "name": "salt", "amount": 1, "unit": "serving"},
+          {"id": 51, "name": "fried onions", "amount": 1, "unit": "tablespoon"},
+          {"id": 52, "name": "raisins", "amount": 1, "unit": "tablespoon"},
+          {"id": 53, "name": "almond flakes", "amount": 1, "unit": "tablespoon"},
+          {"id": 54, "name": "spring onion", "amount": 1, "unit": "serving"},
+          {"id": 55, "name": "parsley", "amount": 1, "unit": "serving"}
+        ]
+      }
+    ],
+    "products": [
+      {"id": 1, "name": "Farfalle Pasta", "price": 2.99, "unit": "package", "packageSize": 500, "packageUnit": "gram", "image": "https://example.com/farfalle.jpg"},
+      {"id": 2, "name": "Fresh Parsley", "price": 1.99, "unit": "bunch", "packageSize": 100, "packageUnit": "gram", "image": "https://example.com/parsley.jpg"},
+      {"id": 3, "name": "Garlic", "price": 0.99, "unit": "head", "packageSize": 1, "packageUnit": "piece", "image": "https://example.com/garlic.jpg"},
+      {"id": 4, "name": "Plain Yogurt", "price": 3.49, "unit": "container", "packageSize": 500, "packageUnit": "ml", "image": "https://example.com/yogurt.jpg"},
+      {"id": 5, "name": "Mixed Nuts", "price": 5.99, "unit": "package", "packageSize": 200, "packageUnit": "gram", "image": "https://example.com/nuts.jpg"},
+      {"id": 6, "name": "Olive Oil", "price": 7.99, "unit": "bottle", "packageSize": 500, "packageUnit": "ml", "image": "https://example.com/oliveoil.jpg"},
+      {"id": 7, "name": "Parmesan Cheese", "price": 4.99, "unit": "package", "packageSize": 200, "packageUnit": "gram", "image": "https://example.com/parmesan.jpg"},
+      {"id": 8, "name": "Salt", "price": 1.99, "unit": "container", "packageSize": 500, "packageUnit": "gram", "image": "https://example.com/salt.jpg"},
+      {"id": 9, "name": "Black Pepper", "price": 2.99, "unit": "container", "packageSize": 100, "packageUnit": "gram", "image": "https://example.com/pepper.jpg"},
+      {"id": 10, "name": "Napa Cabbage", "price": 2.99, "unit": "head", "packageSize": 1, "packageUnit": "kg", "image": "https://example.com/napacabbage.jpg"},
+      {"id": 11, "name": "Scallions", "price": 1.49, "unit": "bunch", "packageSize": 100, "packageUnit": "gram", "image": "https://example.com/scallions.jpg"},
+      {"id": 12, "name": "Ginger Root", "price": 1.99, "unit": "piece", "packageSize": 200, "packageUnit": "gram", "image": "https://example.com/ginger.jpg"},
+      {"id": 13, "name": "Ground Chilli Pepper", "price": 3.99, "unit": "container", "packageSize": 100, "packageUnit": "gram", "image": "https://example.com/chillipepper.jpg"},
+      {"id": 14, "name": "Sugar", "price": 2.49, "unit": "package", "packageSize": 1, "packageUnit": "kg", "image": "https://example.com/sugar.jpg"},
+      {"id": 15, "name": "Duck Breast", "price": 9.99, "unit": "package", "packageSize": 500, "packageUnit": "gram", "image": "https://example.com/duck.jpg"},
+      {"id": 16, "name": "Eggs", "price": 3.99, "unit": "carton", "packageSize": 12, "packageUnit": "piece", "image": "https://example.com/eggs.jpg"},
+      {"id": 17, "name": "Milk", "price": 2.99, "unit": "carton", "packageSize": 1, "packageUnit": "liter", "image": "https://example.com/milk.jpg"},
+      {"id": 18, "name": "Mushrooms", "price": 3.49, "unit": "package", "packageSize": 250, "packageUnit": "gram", "image": "https://example.com/mushrooms.jpg"},
+      {"id": 19, "name": "Onion", "price": 0.99, "unit": "piece", "packageSize": 1, "packageUnit": "piece", "image": "https://example.com/onion.jpg"},
+      {"id": 20, "name": "Puff Pastry", "price": 4.99, "unit": "package", "packageSize": 500, "packageUnit": "gram", "image": "https://example.com/puffpastry.jpg"},
+      {"id": 21, "name": "Red Wine", "price": 12.99, "unit": "bottle", "packageSize": 750, "packageUnit": "ml", "image": "https://example.com/redwine.jpg"},
+      {"id": 22, "name": "Beef Tenderloin", "price": 24.99, "unit": "package", "packageSize": 1, "packageUnit": "kg", "image": "https://example.com/beef.jpg"},
+      {"id": 23, "name": "Thyme", "price": 1.99, "unit": "bunch", "packageSize": 50, "packageUnit": "gram", "image": "https://example.com/thyme.jpg"},
+      {"id": 24, "name": "Applewood Bacon", "price": 5.99, "unit": "package", "packageSize": 250, "packageUnit": "gram", "image": "https://example.com/bacon.jpg"},
+      {"id": 25, "name": "Cremini Mushrooms", "price": 3.99, "unit": "package", "packageSize": 200, "packageUnit": "gram", "image": "https://example.com/creminimushrooms.jpg"},
+      {"id": 26, "name": "Leeks", "price": 2.49, "unit": "bunch", "packageSize": 2, "packageUnit": "piece", "image": "https://example.com/leeks.jpg"},
+      {"id": 27, "name": "Orecchiette Pasta", "price": 3.49, "unit": "package", "packageSize": 500, "packageUnit": "gram", "image": "https://example.com/orecchiette.jpg"},
+      {"id": 28, "name": "Fresh Peas", "price": 2.99, "unit": "package", "packageSize": 200, "packageUnit": "gram", "image": "https://example.com/peas.jpg"},
+      {"id": 29, "name": "Ghee", "price": 6.99, "unit": "jar", "packageSize": 300, "packageUnit": "ml", "image": "https://example.com/ghee.jpg"},
+      {"id": 30, "name": "Cinnamon Sticks", "price": 3.99, "unit": "package", "packageSize": 50, "packageUnit": "gram", "image": "https://example.com/cinnamon.jpg"},
+      {"id": 31, "name": "Star Anise", "price": 2.99, "unit": "package", "packageSize": 25, "packageUnit": "gram", "image": "https://example.com/staranise.jpg"},
+      {"id": 32, "name": "Cloves", "price": 2.99, "unit": "package", "packageSize": 25, "packageUnit": "gram", "image": "https://example.com/cloves.jpg"},
+      {"id": 33, "name": "Cardamom", "price": 3.99, "unit": "package", "packageSize": 25, "packageUnit": "gram", "image": "https://example.com/cardamom.jpg"},
+      {"id": 34, "name": "Evaporated Milk", "price": 1.99, "unit": "can", "packageSize": 370, "packageUnit": "ml", "image": "https://example.com/evaporatedmilk.jpg"},
+      {"id": 35, "name": "Basmati Rice", "price": 5.99, "unit": "package", "packageSize": 1, "packageUnit": "kg", "image": "https://example.com/basmatirice.jpg"},
+      {"id": 36, "name": "Fried Onions", "price": 3.49, "unit": "container", "packageSize": 100, "packageUnit": "gram", "image": "https://example.com/friedonions.jpg"},
+      {"id": 37, "name": "Raisins", "price": 2.99, "unit": "package", "packageSize": 250, "packageUnit": "gram", "image": "https://example.com/raisins.jpg"},
+    {"id": 38, "name": "Almond Flakes", "price": 4.99, "unit": "package", "packageSize": 100, "packageUnit": "gram", "image": "https://example.com/almondflakes.jpg"},
+    {"id": 39, "name": "Spring Onions", "price": 1.49, "unit": "bunch", "packageSize": 100, "packageUnit": "gram", "image": "https://example.com/springonions.jpg"}
+  ]
+}

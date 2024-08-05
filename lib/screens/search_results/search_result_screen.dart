@@ -12,7 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class SearchResults extends StatefulWidget {
   final String id;
-  const SearchResults({Key? key, required this.id}) : super(key: key);
+  const SearchResults({super.key, required this.id});
 
   @override
   State<SearchResults> createState() => _SearchResultsState();
@@ -30,7 +30,8 @@ class _SearchResultsState extends State<SearchResults> {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+      data: MediaQuery.of(context)
+          .copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(

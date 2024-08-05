@@ -1,5 +1,4 @@
 import 'package:food_recipe_app/models/analyzed_instructions.dart';
-
 import 'extended_ingredient.dart';
 
 ///Recipe Model
@@ -39,6 +38,8 @@ class Recipe {
   List<AnalyzedInstruction>? analyzedInstructions;
   dynamic originalId;
   String? spoonacularSourceUrl;
+  DateTime? dateAdded;
+  DateTime? dateRemoved;
 
   Recipe({
     this.vegetarian,
@@ -76,6 +77,8 @@ class Recipe {
     this.analyzedInstructions,
     this.originalId,
     this.spoonacularSourceUrl,
+    this.dateAdded,
+    this.dateRemoved,
   });
 
   factory Recipe.fromJson(json) => Recipe(
@@ -118,6 +121,12 @@ class Recipe {
             .toList(),
         originalId: json['originalId'] as dynamic,
         spoonacularSourceUrl: json['spoonacularSourceUrl'] as String?,
+        dateAdded: json['dateAdded'] != null
+            ? DateTime.parse(json['dateAdded'])
+            : null,
+        dateRemoved: json['dateRemoved'] != null
+            ? DateTime.parse(json['dateRemoved'])
+            : null,
       );
 
   toJson() => {
@@ -158,5 +167,7 @@ class Recipe {
             analyzedInstructions?.map((e) => e.toJson()).toList(),
         'originalId': originalId,
         'spoonacularSourceUrl': spoonacularSourceUrl,
+        'dateAdded': dateAdded?.toIso8601String(),
+        'dateRemoved': dateRemoved?.toIso8601String(),
       };
 }

@@ -1,8 +1,8 @@
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
+import 'package:uuid/uuid.dart';
 import 'measures.dart';
 
 class ExtendedIngredient {
+  final String _uniqueId;
   int? id;
   String? aisle;
   String? image;
@@ -19,8 +19,11 @@ class ExtendedIngredient {
   List<dynamic>? meta;
   List<dynamic>? metaInformation;
   Measures? measures;
+  double? convertedAmount;
+  String? convertedUnit;
 
   ExtendedIngredient({
+    String? uniqueId,
     this.id,
     this.aisle,
     this.image,
@@ -37,19 +40,15 @@ class ExtendedIngredient {
     this.meta,
     this.metaInformation,
     this.measures,
-  });
+    this.convertedAmount,
+    this.convertedUnit,
+  }) : _uniqueId = uniqueId ?? Uuid().v4();
 
-  String get uniqueId {
-    // Create a compound string of multiple properties
-    final compoundString = '$id$name$amount$unit$recipeId';
-    // Generate a SHA-256 hash of the compound string
-    final bytes = utf8.encode(compoundString);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
+  String get uniqueId => _uniqueId;
 
   factory ExtendedIngredient.fromJson(Map<String, dynamic> json) {
     return ExtendedIngredient(
+      uniqueId: json['uniqueId'] as String?,
       id: json['id'] as int?,
       aisle: json['aisle'] as String?,
       image: json['image'] as String?,
@@ -63,26 +62,35 @@ class ExtendedIngredient {
       unit: json['unit'] as String?,
       meta: json['meta'] as List<dynamic>?,
       metaInformation: json['metaInformation'] as List<dynamic>?,
-      measures: json['measures'] == null ? null : Measures.fromJson(json['measures']),
+      measures:
+          json['measures'] == null ? null : Measures.fromJson(json['measures']),
+      convertedAmount: json['convertedAmount'],
+      convertedUnit: json['convertedUnit'],
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'aisle': aisle,
-    'image': image,
-    'consistency': consistency,
-    'name': name,
-    'nameClean': nameClean,
-    'original': original,
-    'originalString': originalString,
-    'originalName': originalName,
-    'amount': amount,
-    'unit': unit,
-    'meta': meta,
-    'metaInformation': metaInformation,
-    'measures': measures?.toJson(),
-  };
+  Map<String, dynamic> toJson() {
+    final json = {
+      'uniqueId': _uniqueId,
+      'id': id,
+      'aisle': aisle,
+      'image': image,
+      'consistency': consistency,
+      'name': name,
+      'nameClean': nameClean,
+      'original': original,
+      'originalString': originalString,
+      'originalName': originalName,
+      'amount': amount,
+      'unit': unit,
+      'meta': meta,
+      'metaInformation': metaInformation,
+      'measures': measures?.toJson(),
+      'convertedAmount': convertedAmount,
+      'convertedUnit': convertedUnit,
+    };
+    return json;
+  }
 
   ExtendedIngredient copyWith({
     int? id,
@@ -101,8 +109,11 @@ class ExtendedIngredient {
     List<dynamic>? meta,
     List<dynamic>? metaInformation,
     Measures? measures,
+    double? convertedAmount,
+    String? convertedUnit,
   }) {
     return ExtendedIngredient(
+      uniqueId: _uniqueId,
       id: id ?? this.id,
       aisle: aisle ?? this.aisle,
       image: image ?? this.image,
@@ -119,6 +130,8 @@ class ExtendedIngredient {
       meta: meta ?? this.meta,
       metaInformation: metaInformation ?? this.metaInformation,
       measures: measures ?? this.measures,
+      convertedAmount: convertedAmount ?? this.convertedAmount,
+      convertedUnit: convertedUnit ?? this.convertedUnit,
     );
   }
 }

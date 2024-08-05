@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/widgets/loading_widget.dart';
 import '../random_recipe/widgets/recipe_info_success_widget.dart';
-
 import 'bloc/recipe_info_bloc.dart';
 
 class RecipeInfo extends StatefulWidget {
   final String id;
-  const RecipeInfo({Key? key, required this.id}) : super(key: key);
+  const RecipeInfo({super.key, required this.id});
 
   @override
   State<RecipeInfo> createState() => _RecipeInfoState();

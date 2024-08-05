@@ -92,7 +92,8 @@ class HomeScreenWidget extends StatefulWidget {
   final List<FoodType> pizza;
   final List<FoodType> cake;
   final List<FoodType> rice;
-  HomeScreenWidget({
+  const HomeScreenWidget({
+    super.key,
     required this.breakfast,
     required this.lunch,
     required this.drinks,

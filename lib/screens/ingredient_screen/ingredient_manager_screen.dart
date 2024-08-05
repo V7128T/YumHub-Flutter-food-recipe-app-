@@ -1,12 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/models/categorized_ingredients.dart';
+import 'package:food_recipe_app/models/recipe.dart';
+import 'package:food_recipe_app/screens/recipe_info/bloc/recipe_info_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:food_recipe_app/models/extended_ingredient.dart';
 import 'package:food_recipe_app/models/user_ingredient_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:food_recipe_app/models/recipe.dart';
+import 'package:food_recipe_app/screens/recipe_info/recipe_info_screen.dart'
+    as RecipeInfoPage;
+import 'package:food_recipe_app/screens/ingredient_screen/delete_history.dart';
+import 'package:food_recipe_app/services/conversion_service.dart';
 
 class IngredientManagerPage extends StatefulWidget {
   const IngredientManagerPage({super.key});
@@ -33,6 +39,7 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         await userIngredientList.loadUserIngredients(user.uid);
+        setState(() {});
       }
     } catch (e) {
       _showErrorDialog('Failed to load ingredients: $e');
@@ -68,47 +75,32 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
         userIngredientList.getCategorizedIngredients();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Grocery List',
-            style: GoogleFonts.chivo(
-              textStyle: const TextStyle(
-                  fontSize: 25.0,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
-            )),
-        actions: [
-          IconButton(
-            icon: Icon(_showCombinedView ? Icons.list : Icons.grid_view),
-            onPressed: _toggleViewMode,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : userRecipes.isEmpty
-              ? _buildEmptyState()
-              : _showCombinedView
-                  ? _buildCategorizedView(categorizedIngredients)
-                  : _buildRecipeView(userIngredientList),
-      floatingActionButton: userIngredientList.canUndo
-          ? FloatingActionButton(
-              onPressed: () => _undoDeleteRecipe(context),
-              child: const Icon(Icons.undo),
-            )
-          : null,
-    );
-  }
-
-  Future<void> _undoDeleteRecipe(BuildContext context) async {
-    final userIngredientList =
-        Provider.of<UserIngredientList>(context, listen: false);
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      await userIngredientList.undoDeleteRecipe(user.uid);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Recipe restored successfully')),
-      );
-    }
+        appBar: AppBar(
+          title: Text('Grocery List',
+              style: GoogleFonts.chivo(
+                textStyle: const TextStyle(
+                    fontSize: 25.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
+              )),
+          actions: [
+            IconButton(
+              icon: Icon(_showCombinedView ? Icons.list : Icons.grid_view),
+              onPressed: _toggleViewMode,
+            ),
+          ],
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : userRecipes.isEmpty
+                ? _buildEmptyState()
+                : _showCombinedView
+                    ? _buildCategorizedView(categorizedIngredients)
+                    : _buildRecipeView(userIngredientList),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showDeleteHistory(context),
+          child: const Icon(Icons.history),
+        ));
   }
 
   Widget _buildEmptyState() {
@@ -153,72 +145,77 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Dismissible(
-            key: uniqueKey,
-            direction: DismissDirection.endToStart,
-            onDismissed: (_) => _removeRecipe(recipe),
-            background: Container(
-              decoration: BoxDecoration(
-                color: Colors.red.shade300,
-                borderRadius: BorderRadius.circular(12),
+          child: GestureDetector(
+            onLongPress: () =>
+                _navigateToRecipeInfo(context, recipe.id.toString()),
+            child: Dismissible(
+              key: uniqueKey,
+              direction: DismissDirection.endToStart,
+              onDismissed: (_) => _removeRecipe(recipe),
+              background: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.shade300,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                child: const Icon(Icons.delete, color: Colors.white),
               ),
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-              child: const Icon(Icons.delete, color: Colors.white),
-            ),
-            child: Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: Colors.grey.shade200),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: ExpansionTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      imageUrl: recipe.image ?? '',
-                      width: 60,
-                      height: 60,
-                      memCacheWidth: 157,
-                      memCacheHeight: 147,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey.shade200,
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey.shade200,
-                        child: const Icon(Icons.error, color: Colors.grey),
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey.shade200),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: ExpansionTile(
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: CachedNetworkImage(
+                        imageUrl: recipe.image ?? '',
+                        width: 60,
+                        height: 60,
+                        memCacheWidth: 157,
+                        memCacheHeight: 147,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey.shade200,
+                          child:
+                              const Center(child: CircularProgressIndicator()),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey.shade200,
+                          child: const Icon(Icons.error, color: Colors.grey),
+                        ),
                       ),
                     ),
-                  ),
-                  title: Text(
-                    recipe.title ?? 'Unknown Recipe',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    title: Text(
+                      recipe.title ?? 'Unknown Recipe',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  subtitle: Text(
-                    'Ready in ${recipe.readyInMinutes ?? 'N/A'} Min',
-                    style: TextStyle(
-                      color: Colors.green.shade700,
-                      fontSize: 14,
+                    subtitle: Text(
+                      'Added on ${_formatDate(recipe.dateAdded)}',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
                     ),
+                    children: recipe.extendedIngredients?.isEmpty ?? true
+                        ? [
+                            const ListTile(
+                              title: Text('No ingredients for this recipe'),
+                              textColor: Colors.grey,
+                            )
+                          ]
+                        : recipe.extendedIngredients!
+                            .map((ingredient) =>
+                                _buildIngredientTile(ingredient, recipe))
+                            .toList(),
                   ),
-                  children: recipe.extendedIngredients?.isEmpty ?? true
-                      ? [
-                          const ListTile(
-                            title: Text('No ingredients for this recipe'),
-                            textColor: Colors.grey,
-                          )
-                        ]
-                      : recipe.extendedIngredients!
-                          .map((ingredient) =>
-                              _buildIngredientTile(ingredient, recipe))
-                          .toList(),
                 ),
               ),
             ),
@@ -228,9 +225,39 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
     );
   }
 
+  String _formatDate(DateTime? date) {
+    return date != null
+        ? '${date.day}/${date.month}/${date.year}'
+        : 'Unknown date';
+  }
+
+  void _showDeleteHistory(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DeleteHistorySheet(),
+    );
+  }
+
+  void _navigateToRecipeInfo(BuildContext context, String recipeId) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => BlocProvider(
+          create: (context) => RecipeInfoBloc(),
+          child: RecipeInfoPage.RecipeInfo(id: recipeId),
+        ),
+      ),
+    );
+  }
+
   Widget _buildIngredientTile(ExtendedIngredient ingredient, Recipe? recipe) {
     final uniqueKey = ValueKey(
         '${recipe?.id ?? 'combined'}-${ingredient.uniqueId}-${DateTime.now().microsecondsSinceEpoch}');
+    print(
+        "Building tile for: ${ingredient.name} - Converted: ${ingredient.convertedAmount} ${ingredient.convertedUnit}");
 
     return Dismissible(
       key: uniqueKey,
@@ -249,7 +276,7 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
-          '${ingredient.amount?.toStringAsFixed(2) ?? ''} ${ingredient.unit ?? ''}',
+          '${ingredient.convertedAmount?.toStringAsFixed(2) ?? ingredient.amount?.toStringAsFixed(2) ?? ''} ${ingredient.convertedUnit ?? ingredient.unit ?? ''}',
           style: TextStyle(color: Colors.grey.shade600),
         ),
         trailing: IconButton(
@@ -334,8 +361,12 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
               onPressed: () async {
                 Navigator.of(context).pop();
                 if (recipe != null) {
-                  await _updateIngredient(
-                      ingredient, recipe, name, amount, unit);
+                  final updatedIngredient = ingredient.copyWith(
+                    name: name,
+                    amount: amount,
+                    unit: unit,
+                  );
+                  await _updateIngredient(updatedIngredient, recipe);
                 }
               },
             ),
@@ -345,29 +376,27 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
     );
   }
 
-  Future<void> _updateIngredient(ExtendedIngredient ingredient, Recipe recipe,
-      String? name, double? amount, String? unit) async {
-    try {
-      final userIngredientList =
-          Provider.of<UserIngredientList>(context, listen: false);
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        ExtendedIngredient updatedIngredient = ingredient.copyWith(
-          name: name,
-          amount: amount,
-          unit: unit,
-        );
-
+  Future<void> _updateIngredient(
+      ExtendedIngredient updatedIngredient, Recipe recipe) async {
+    final userIngredientList =
+        Provider.of<UserIngredientList>(context, listen: false);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
         await userIngredientList.updateIngredient(
-            user.uid,
-            recipe.id.toString(),
-            updatedIngredient,
-            recipe.title ?? 'Unknown Recipe');
+          user.uid,
+          recipe.id.toString(),
+          updatedIngredient,
+          recipe.title ?? 'Unknown Recipe',
+        );
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ingredient updated successfully')));
+          const SnackBar(content: Text('Ingredient updated successfully')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update ingredient: $e')),
+        );
       }
-    } catch (e) {
-      _showErrorDialog('Failed to update ingredient: $e');
     }
   }
 }

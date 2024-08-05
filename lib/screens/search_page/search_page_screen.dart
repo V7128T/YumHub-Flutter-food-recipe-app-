@@ -165,143 +165,189 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                         ),
                       if (isAnonymous)
-                        SliverToBoxAdapter(
+                        SliverFillRemaining(
                           child: Stack(
                             children: [
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 25.0, vertical: 20),
-                                child: Text(
-                                  "Most Recent Searches by People",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Wrap(
-                                  alignment: WrapAlignment.start,
+                              SingleChildScrollView(
+                                child: Column(
                                   children: [
-                                    ChipWidget("Baking"),
-                                    ChipWidget("Vegetarian"),
-                                    ChipWidget("Sauces"),
-                                    ChipWidget("Meat"),
-                                    ChipWidget("Turkey"),
-                                    ChipWidget("Chicken"),
-                                    ChipWidget("Sausages"),
-                                    ChipWidget("Mince"),
-                                    ChipWidget("Burgers"),
-                                    ChipWidget("Pasta"),
-                                    ChipWidget("Noodles"),
-                                    ChipWidget("Pizza"),
-                                    ChipWidget("Soups"),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 25.0, vertical: 20),
+                                      child: Text(
+                                        "Most Recent Searches by People",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Wrap(
+                                        alignment: WrapAlignment.start,
+                                        children: [
+                                          ChipWidget("Baking"),
+                                          ChipWidget("Vegetarian"),
+                                          ChipWidget("Sauces"),
+                                          ChipWidget("Meat"),
+                                          ChipWidget("Turkey"),
+                                          ChipWidget("Chicken"),
+                                          ChipWidget("Sausages"),
+                                          ChipWidget("Mince"),
+                                          ChipWidget("Burgers"),
+                                          ChipWidget("Pasta"),
+                                          ChipWidget("Noodles"),
+                                          ChipWidget("Pizza"),
+                                          ChipWidget("Soups"),
+                                        ],
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 25.0, vertical: 10),
+                                      child: Text(
+                                        "Recipes by Categories",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    const CategoryTile(
+                                        text: "Main course",
+                                        image:
+                                            "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
+                                    const CategoryTile(
+                                        text: "Side-dish",
+                                        image:
+                                            "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
+                                    const CategoryTile(
+                                        text: "Dessert",
+                                        image:
+                                            "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
+                                    const CategoryTile(
+                                        text: "Appetizer",
+                                        image:
+                                            "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
+                                    const CategoryTile(
+                                      text: "Salad",
+                                      image:
+                                          "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Bread",
+                                      image:
+                                          "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Breakfast",
+                                      image:
+                                          "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Soup",
+                                      image:
+                                          "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Beverage",
+                                      image:
+                                          "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Sauce",
+                                      image:
+                                          "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Marinade",
+                                      image:
+                                          "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Fingerfood",
+                                      image:
+                                          "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Snack",
+                                      image:
+                                          "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                    ),
+                                    const CategoryTile(
+                                      text: "Drink",
+                                      image:
+                                          "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
+                                    ),
+                                    Container(
+                                      color: Colors.black.withOpacity(0.5),
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Text(
+                                              'You are logged in as a guest.',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10.0),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                showGuestOverlay(context);
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.orange,
+                                              ),
+                                              child: const Text(
+                                                  'Create an Account'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 25.0, vertical: 10),
-                                child: Text(
-                                  "Recipes by Categories",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              const CategoryTile(
-                                  text: "Main course",
-                                  image:
-                                      "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
-                              const CategoryTile(
-                                  text: "Side-dish",
-                                  image:
-                                      "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
-                              const CategoryTile(
-                                  text: "Dessert",
-                                  image:
-                                      "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
-                              const CategoryTile(
-                                  text: "Appetizer",
-                                  image:
-                                      "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
-                              const CategoryTile(
-                                text: "Salad",
-                                image:
-                                    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Bread",
-                                image:
-                                    "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Breakfast",
-                                image:
-                                    "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Soup",
-                                image:
-                                    "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Beverage",
-                                image:
-                                    "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Sauce",
-                                image:
-                                    "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Marinade",
-                                image:
-                                    "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Fingerfood",
-                                image:
-                                    "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Snack",
-                                image:
-                                    "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Drink",
-                                image:
-                                    "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
-                              ),
-                              Container(
-                                color: Colors.black.withOpacity(0.5),
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'You are logged in as a guest.',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                              Positioned.fill(
+                                child: Container(
+                                  color: Colors.black.withOpacity(0.7),
+                                  child: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                      const SizedBox(height: 10.0),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          showGuestOverlay(context);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.orange,
-                                        ),
-                                        child: const Text('Create an Account'),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text(
+                                            'You are logged in as a guest.',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10.0),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              showGuestOverlay(context);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.orange,
+                                            ),
+                                            child:
+                                                const Text('Create an Account'),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -453,7 +499,7 @@ class _SearchPageState extends State<SearchPage> {
   void _showFilterDrawer(BuildContext context) {
     showGeneralDialog(
       context: context,
-      barrierDismissible: true, // Allow dismissing by tapping outside
+      barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.5),
       transitionDuration: const Duration(milliseconds: 200),
@@ -466,73 +512,170 @@ class _SearchPageState extends State<SearchPage> {
           child: Align(
             alignment: Alignment.centerRight,
             child: Container(
-              width: MediaQuery.of(context).size.width *
-                  0.7, // Adjust width as needed
-              height: MediaQuery.of(context).size.height,
-              color: Colors.white,
+              width: MediaQuery.of(context).size.width * 0.85,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(-3, 0),
+                  ),
+                ],
+              ),
               child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Filter Options',
-                            style: GoogleFonts.chivo(
-                              textStyle: const TextStyle(
-                                fontSize: 25.0,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            style: GoogleFonts.poppins(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
+                            softWrap: true,
+                            overflow: TextOverflow.visible,
                           ),
                           IconButton(
-                            icon: const Icon(Icons.close),
+                            icon:
+                                const Icon(Icons.close, color: Colors.black54),
                             onPressed: () => Navigator.of(context).pop(),
                           ),
                         ],
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _isAdvancedSearchEnabled =
-                                !_isAdvancedSearchEnabled;
-                          });
-                          _searchPageCubit.toggleAdvancedSearch();
-                          if (_isAdvancedSearchEnabled) {
-                            _searchPageCubit.emit(_searchPageCubit.state
-                                .copyWith(ingredients: []));
-                          }
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isAdvancedSearchEnabled
-                              ? Colors.orange.withOpacity(0.5)
-                              : Colors.orange,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                      const SizedBox(height: 30.0),
+                      Text(
+                        'Search Mode',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                            'Search with ingredients',
-                            style: TextStyle(
-                              color: _isAdvancedSearchEnabled
-                                  ? Colors.white.withOpacity(0.5)
-                                  : Colors.white,
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                      ),
+                      const SizedBox(height: 10.0),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _isAdvancedSearchEnabled = false;
+                                  });
+                                  _searchPageCubit.toggleAdvancedSearch();
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: !_isAdvancedSearchEnabled
+                                        ? Colors.white
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: !_isAdvancedSearchEnabled
+                                        ? [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.2),
+                                              spreadRadius: 1,
+                                              blurRadius: 3,
+                                              offset: const Offset(0, 1),
+                                            ),
+                                          ]
+                                        : null,
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'Normal',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.poppins(
+                                          textStyle: TextStyle(
+                                        fontSize: 20.0,
+                                        color: !_isAdvancedSearchEnabled
+                                            ? Colors.black87
+                                            : Colors.grey,
+                                        fontWeight: FontWeight.w600,
+                                      )),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _isAdvancedSearchEnabled = true;
+                                  });
+                                  _searchPageCubit.toggleAdvancedSearch();
+                                  _searchPageCubit.emit(_searchPageCubit.state
+                                      .copyWith(ingredients: []));
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: _isAdvancedSearchEnabled
+                                        ? Colors.white
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: _isAdvancedSearchEnabled
+                                        ? [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.2),
+                                              spreadRadius: 1,
+                                              blurRadius: 3,
+                                              offset: const Offset(0, 1),
+                                            ),
+                                          ]
+                                        : null,
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'Ingredients',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.poppins(
+                                          textStyle: TextStyle(
+                                        fontSize: 20.0,
+                                        color: _isAdvancedSearchEnabled
+                                            ? Colors.black87
+                                            : Colors.grey,
+                                        fontWeight: FontWeight.w600,
+                                      )),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                      // Add more filter options here as needed
+                    ],
+                  ),
                 ),
               ),
             ),

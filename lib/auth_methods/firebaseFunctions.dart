@@ -26,6 +26,13 @@ class FirestoreServices {
     }, SetOptions(merge: true));
   }
 
+  static Future<Recipe> getRecipe(String userId, String recipeId) async {
+    final doc =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    final recipeData = doc.data()?['recipes'][recipeId];
+    return Recipe.fromJson(recipeData);
+  }
+
   static Future<void> removeUserRecipe(String userId, String recipeId) async {
     await FirebaseFirestore.instance
         .collection('users')
@@ -52,5 +59,37 @@ class FirestoreServices {
       }
     }
     return {};
+  }
+
+  static Future<void> permanentlyRemoveUserRecipe(
+      String userId, String recipeId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('deletedRecipes')
+        .doc(recipeId)
+        .delete();
+  }
+
+  static Future<void> clearAllDeletedRecipes(String userId) async {
+    final deletedRecipesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('deletedRecipes');
+
+    final deletedRecipes = await deletedRecipesRef.get();
+    for (var doc in deletedRecipes.docs) {
+      await doc.reference.delete();
+    }
+  }
+
+  static Future<void> removeFromDeletedRecipes(
+      String userId, String recipeId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('deletedRecipes')
+        .doc(recipeId)
+        .delete();
   }
 }
