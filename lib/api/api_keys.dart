@@ -5,5 +5,5 @@ class ApiKey {
   //alt2: 32d352f13b8144c0a6357d23bba33a05 (yumhub2105679@protonmail.com)
   //alt3: c45a665da7e2480fa71c67d9fbf9482e (yumhubb-support@proton.me)
   //lc: cd725e8bbb364a4d9291c6c5cfb73a16
-  static String keys = 'cd725e8bbb364a4d9291c6c5cfb73a16';
+  static String keys = '32d352f13b8144c0a6357d23bba33a05';
 }

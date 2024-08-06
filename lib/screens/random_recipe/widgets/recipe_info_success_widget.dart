@@ -110,9 +110,16 @@ class _AddAllIngredientsButtonState extends State<AddAllIngredientsButton>
                 : _toggleExpanded,
             icon: Icon(_isExpanded ? Icons.close : Icons.add),
             label: _isExpanded
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('Add All Ingredients'),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      "Add All Ingredients",
+                      style: GoogleFonts.chivo(
+                        textStyle: const TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
                   )
                 : const SizedBox.shrink(),
             style: ElevatedButton.styleFrom(
@@ -357,7 +364,6 @@ class _RacipeInfoWidgetState extends State<RacipeInfoWidget> {
                                   .asMap()
                                   .entries
                                   .map((entry) {
-                                final instructionIndex = entry.key;
                                 final instruction = entry.value;
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

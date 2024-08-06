@@ -1,3 +1,4 @@
+import 'package:food_recipe_app/services/conversion_service.dart';
 import 'package:uuid/uuid.dart';
 import 'measures.dart';
 
@@ -133,5 +134,22 @@ class ExtendedIngredient {
       convertedAmount: convertedAmount ?? this.convertedAmount,
       convertedUnit: convertedUnit ?? this.convertedUnit,
     );
+  }
+
+  Future<void> convertToGrams(ConversionService conversionService) async {
+    if (amount != null && unit != null) {
+      try {
+        final result = await conversionService.convertAmount(
+          ingredientName: name ?? '',
+          sourceAmount: amount!,
+          sourceUnit: unit!,
+          targetUnit: 'grams',
+        );
+        convertedAmount = result['targetAmount'];
+        convertedUnit = result['targetUnit'];
+      } catch (e) {
+        print('Error converting ingredient $name: $e');
+      }
+    }
   }
 }

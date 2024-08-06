@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_recipe_app/models/removed_ingredients.dart';
 import 'package:provider/provider.dart';
 import 'package:food_recipe_app/models/user_ingredient_list.dart';
 import 'package:food_recipe_app/models/recipe.dart';
@@ -19,6 +20,8 @@ class _DeleteHistorySheetState extends State<DeleteHistorySheet> {
     final userIngredientList = Provider.of<UserIngredientList>(context);
     final recentlyDeletedRecipes =
         userIngredientList.getRecentlyDeletedRecipes();
+    final recentlyRemovedIngredients =
+        userIngredientList.getRecentlyRemovedIngredients();
 
     return DraggableScrollableSheet(
       initialChildSize: 0.9,
@@ -32,140 +35,279 @@ class _DeleteHistorySheetState extends State<DeleteHistorySheet> {
           ),
           child: Column(
             children: [
-              Card(
-                elevation: 4.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Recently Deleted Recipes',
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _clearAllRecipes(context),
-                              icon: const Icon(Icons.delete_sweep),
-                              label: const Text('Clear All'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _buildHeader(context),
               Expanded(
-                child: recentlyDeletedRecipes.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No deleted recipes',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: controller,
-                        itemCount: recentlyDeletedRecipes.length,
-                        itemBuilder: (context, index) {
-                          final recipe = recentlyDeletedRecipes[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 8),
-                            child: Slidable(
-                              endActionPane: ActionPane(
-                                motion: const ScrollMotion(),
-                                children: [
-                                  SlidableAction(
-                                    onPressed: (_) => _permanentlyRemoveRecipe(
-                                        context, recipe),
-                                    backgroundColor: Colors.red,
-                                    foregroundColor: Colors.white,
-                                    icon: Icons.delete_forever,
-                                    label: 'Delete',
-                                  ),
-                                  SlidableAction(
-                                    onPressed: (_) =>
-                                        _restoreRecipe(context, recipe),
-                                    backgroundColor: Colors.green,
-                                    foregroundColor: Colors.white,
-                                    icon: Icons.restore,
-                                    label: 'Restore',
-                                  ),
-                                ],
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.2),
-                                      spreadRadius: 1,
-                                      blurRadius: 3,
-                                      offset: const Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
-                                  title: Text(
-                                    recipe.title ?? 'Unknown Recipe',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    'Removed on ${_formatDate(recipe.dateRemoved)}',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  leading: CircleAvatar(
-                                    backgroundColor: Colors.orange[100],
-                                    child: Text(
-                                      recipe.title?[0] ?? '?',
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.orange[800],
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                child: ListView(
+                  controller: controller,
+                  children: [
+                    _buildDeletedRecipesList(recentlyDeletedRecipes),
+                    _buildRemovedIngredientsList(recentlyRemovedIngredients),
+                  ],
+                ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Card(
+      elevation: 4.0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Delete History',
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _clearAllHistory(context),
+                    icon: const Icon(Icons.delete_sweep),
+                    label: const Text('Clear All'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeletedRecipesList(List<Recipe> recentlyDeletedRecipes) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Deleted Recipes',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+        recentlyDeletedRecipes.isEmpty
+            ? Center(
+                child: Text(
+                  'No deleted recipes',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: recentlyDeletedRecipes.length,
+                itemBuilder: (context, index) {
+                  final recipe = recentlyDeletedRecipes[index];
+                  return _buildRecipeItem(recipe);
+                },
+              ),
+      ],
+    );
+  }
+
+  Widget _buildRemovedIngredientsList(
+      List<RemovedIngredient> recentlyRemovedIngredients) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Removed Ingredients',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+        recentlyRemovedIngredients.isEmpty
+            ? Center(
+                child: Text(
+                  'No removed ingredients',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: recentlyRemovedIngredients.length,
+                itemBuilder: (context, index) {
+                  final removedIngredient = recentlyRemovedIngredients[index];
+                  return _buildRemovedIngredientItem(removedIngredient);
+                },
+              ),
+      ],
+    );
+  }
+
+  Widget _buildRecipeItem(Recipe recipe) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Slidable(
+        endActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (_) => _permanentlyRemoveRecipe(context, recipe),
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: Icons.delete_forever,
+              label: 'Delete',
+            ),
+            SlidableAction(
+              onPressed: (_) => _restoreRecipe(context, recipe),
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              icon: Icons.restore,
+              label: 'Restore',
+            ),
+          ],
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            title: Text(
+              recipe.title ?? 'Unknown Recipe',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+            subtitle: Text(
+              'Removed on ${_formatDate(recipe.dateRemoved)}',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            leading: CircleAvatar(
+              backgroundColor: Colors.orange[100],
+              child: Text(
+                recipe.title?[0] ?? '?',
+                style: GoogleFonts.poppins(
+                  color: Colors.orange[800],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRemovedIngredientItem(RemovedIngredient removedIngredient) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Slidable(
+        endActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (_) =>
+                  _permanentlyRemoveIngredient(context, removedIngredient),
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: Icons.delete_forever,
+              label: 'Delete',
+            ),
+            SlidableAction(
+              onPressed: (_) => _restoreIngredient(context, removedIngredient),
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              icon: Icons.restore,
+              label: 'Restore',
+            ),
+          ],
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            title: Text(
+              removedIngredient.ingredient.name ?? 'Unknown Ingredient',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+            subtitle: Text(
+              'From: ${removedIngredient.recipeTitle}\nRemoved on ${_formatDate(removedIngredient.dateRemoved)}',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            leading: CircleAvatar(
+              backgroundColor: Colors.green[100],
+              child: Text(
+                removedIngredient.ingredient.name?[0] ?? '?',
+                style: GoogleFonts.poppins(
+                  color: Colors.green[800],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -183,26 +325,50 @@ class _DeleteHistorySheetState extends State<DeleteHistorySheet> {
     }
   }
 
+  void _permanentlyRemoveIngredient(
+      BuildContext context, RemovedIngredient removedIngredient) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      Provider.of<UserIngredientList>(context, listen: false)
+          .permanentlyRemoveIngredient(
+        user.uid,
+        removedIngredient.recipeId,
+        removedIngredient.ingredient.uniqueId,
+      );
+      setState(() {});
+    }
+  }
+
   void _restoreRecipe(BuildContext context, Recipe recipe) {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       Provider.of<UserIngredientList>(context, listen: false)
           .restoreRecipe(user.uid, recipe);
-      // Refresh the list
       setState(() {});
     }
   }
 
-  void _clearAllRecipes(BuildContext context) {
+  void _restoreIngredient(
+      BuildContext context, RemovedIngredient removedIngredient) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      Provider.of<UserIngredientList>(context, listen: false)
+          .restoreIngredient(user.uid, removedIngredient);
+      setState(() {});
+    }
+  }
+
+  void _clearAllHistory(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Clear All Recipes',
+          title: Text('Clear All History',
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
           content: Text(
-              'Are you sure you want to permanently delete all recipes in the history?',
-              style: GoogleFonts.poppins()),
+            'Are you sure you want to permanently delete all recipes and ingredients in the history?',
+            style: GoogleFonts.poppins(),
+          ),
           actions: <Widget>[
             TextButton(
               child: Text('Cancel', style: GoogleFonts.poppins()),
@@ -218,6 +384,8 @@ class _DeleteHistorySheetState extends State<DeleteHistorySheet> {
                 if (user != null) {
                   Provider.of<UserIngredientList>(context, listen: false)
                       .clearAllDeletedRecipes(user.uid);
+                  Provider.of<UserIngredientList>(context, listen: false)
+                      .clearAllRemovedIngredients(user.uid);
                 }
                 Navigator.of(context).pop();
               },
