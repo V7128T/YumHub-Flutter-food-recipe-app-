@@ -5,7 +5,6 @@ import 'package:food_recipe_app/models/categorized_ingredients.dart';
 import 'package:food_recipe_app/models/recipe.dart';
 import 'package:food_recipe_app/models/shopping_list_item.dart';
 import 'package:food_recipe_app/screens/recipe_info/bloc/recipe_info_bloc.dart';
-import 'package:food_recipe_app/services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:food_recipe_app/models/extended_ingredient.dart';
@@ -23,7 +22,7 @@ class IngredientManagerPage extends StatefulWidget {
   const IngredientManagerPage({super.key});
 
   @override
-  _IngredientManagerPageState createState() => _IngredientManagerPageState();
+  State<IngredientManagerPage> createState() => _IngredientManagerPageState();
 }
 
 class _IngredientManagerPageState extends State<IngredientManagerPage> {
@@ -380,13 +379,13 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                           ),
                         ),
                       ),
-                      title: Text(
-                        recipe.title ?? 'Unknown Recipe',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      title: Text(recipe.title ?? 'Unknown Recipe',
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                                fontSize: 14.0,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600),
+                          )),
                       subtitle: Text(
                         'Added on ${_formatDate(recipe.dateAdded)}',
                         style: TextStyle(
@@ -544,7 +543,7 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    '${ingredient.convertedAmount?.toStringAsFixed(2) ?? ingredient.amount?.toStringAsFixed(2) ?? ''} ${ingredient.convertedUnit ?? ingredient.unit ?? ''}',
+                    '${ingredient.amount} ${ingredient.unit} (${ingredient.convertedAmount?.toStringAsFixed(2) ?? ingredient.amount?.toStringAsFixed(2) ?? ''} ${ingredient.convertedUnit ?? ingredient.unit ?? ''})',
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
                 ],
@@ -673,7 +672,6 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
   Future<void> _addToShoppingList() async {
     final userIngredientList =
         Provider.of<UserIngredientList>(context, listen: false);
-    final apiService = ApiService();
     final user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {

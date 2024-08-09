@@ -131,41 +131,14 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
         ),
         const SizedBox(height: 20),
         const HorizontalList(),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.all(26.0),
-          child: TextField(
-            onSubmitted: (value) {},
-            decoration: InputDecoration(
-              hintText: "Search Recipes..",
-              suffixIcon:
-                  IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  width: 2,
-                  style: BorderStyle.solid,
-                  color: Theme.of(context).primaryColor,
-                ),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  width: 1,
-                  style: BorderStyle.solid,
-                  color: Colors.black.withOpacity(.5),
-                ),
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
-          ),
+        const Padding(
+          padding: EdgeInsets.all(26.0),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 26.0),
           child: header("Popular Breakfast Recipes", "breakfast"),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 2),
         DelayedDisplay(
           delay: const Duration(microseconds: 600),
           child: FoodTypeWidget(

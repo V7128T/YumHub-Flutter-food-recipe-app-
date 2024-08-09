@@ -43,7 +43,7 @@ class ProfilePage extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('You have been signed out.'),
-                        duration: Duration(seconds: 3),
+                        duration: Duration(seconds: 5),
                       ),
                     );
                     return const SizedBox.shrink();
@@ -108,7 +108,6 @@ class ProfilePage extends StatelessWidget {
                         _buildProfileHeader(
                             context, state.userName, state.profilePictureUrl),
                         _buildProfileSections(
-                          state.cookbooksCount,
                           state.recipesCount,
                           state.likesCount,
                         ),
@@ -245,14 +244,12 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildProfileSections(
-    int cookbooksCount,
     int recipesCount,
     int likesCount,
   ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildProfileSection(Icons.book, 'Cookbooks', cookbooksCount),
         _buildProfileSection(Icons.restaurant, 'Recipes', recipesCount),
         _buildProfileSection(Icons.favorite, 'Likes', likesCount),
       ],

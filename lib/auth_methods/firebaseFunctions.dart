@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_recipe_app/main.dart';
 import 'package:food_recipe_app/models/extended_ingredient.dart';
 import 'package:food_recipe_app/models/recipe.dart';
 import 'package:food_recipe_app/models/removed_ingredients.dart';
+import 'package:food_recipe_app/screens/profile_screen/bloc/profile_bloc.dart';
+import 'package:food_recipe_app/screens/profile_screen/bloc/profile_event.dart';
 
 class FirestoreServices {
   static saveUser(String email, String uid, String name,
@@ -23,9 +27,26 @@ class FirestoreServices {
 
   static Future<void> saveUserRecipe(
       String userId, String recipeId, Recipe recipe) async {
-    await FirebaseFirestore.instance.collection('users').doc(userId).set({
-      'recipes': {recipeId: recipe.toJson()}
-    }, SetOptions(merge: true));
+    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final userDoc = await transaction.get(userRef);
+      if (!userDoc.exists) {
+        throw Exception("User does not exist!");
+      }
+
+      final currentRecipes =
+          userDoc.data()?['recipes'] as Map<String, dynamic>? ?? {};
+      currentRecipes[recipeId] = recipe.toJson();
+
+      transaction.update(userRef, {
+        'recipes': currentRecipes,
+        'recipes_count': currentRecipes.length,
+      });
+    });
+
+    // After saving, update the profile
+    BlocProvider.of<ProfileBloc>(navKey.currentContext!).add(LoadProfile());
   }
 
   static Future<Recipe> getRecipe(String userId, String recipeId) async {
@@ -36,10 +57,26 @@ class FirestoreServices {
   }
 
   static Future<void> removeUserRecipe(String userId, String recipeId) async {
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .update({'recipes.$recipeId': FieldValue.delete()});
+    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final userDoc = await transaction.get(userRef);
+      if (!userDoc.exists) {
+        throw Exception("User does not exist!");
+      }
+
+      final currentRecipes =
+          userDoc.data()?['recipes'] as Map<String, dynamic>? ?? {};
+      currentRecipes.remove(recipeId);
+
+      transaction.update(userRef, {
+        'recipes': currentRecipes,
+        'recipes_count': currentRecipes.length,
+      });
+    });
+
+    // After removing, update the profile
+    BlocProvider.of<ProfileBloc>(navKey.currentContext!).add(LoadProfile());
   }
 
   static Future<Map<String, Set<ExtendedIngredient>>> loadUserIngredients(
@@ -177,5 +214,11 @@ class FirestoreServices {
         .collection('deletedRecipes')
         .doc(recipeId)
         .delete();
+  }
+
+  static Future<int> getUserRecipesCount(String userId) async {
+    final doc =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    return doc.data()?['recipes_count'] as int? ?? 0;
   }
 }

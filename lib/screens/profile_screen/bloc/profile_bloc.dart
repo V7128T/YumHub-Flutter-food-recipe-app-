@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:food_recipe_app/auth_methods/firebaseFunctions.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
@@ -17,6 +18,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<LoadProfile>(_onLoadProfile);
     on<SignOut>(_onSignOut);
     on<UpdateProfilePicture>(_onUpdateProfilePicture);
+    on<FetchRecipesCount>(_onFetchRecipesCount);
   }
 
   FutureOr<void> _onLoadProfile(
@@ -30,13 +32,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         final userData = snapshot.data() as Map<String, dynamic>?;
         if (userData != null) {
           final userName = userData['name'] as String?;
-          final cookbooksCount = userData['cookbooks_count'] as int? ?? 0;
           final recipesCount = userData['recipes_count'] as int? ?? 0;
           final likesCount = userData['likes_count'] as int? ?? 0;
           emit(ProfileLoaded(
             userName: userName ?? '',
             profilePictureUrl: userData['profile_picture_url'] ?? '',
-            cookbooksCount: cookbooksCount,
             recipesCount: recipesCount,
             likesCount: likesCount,
           ));
@@ -83,14 +83,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         final userData = userSnapshot.data() as Map<String, dynamic>?;
         if (userData != null) {
           final userName = userData['name'] as String?;
-          final cookbooksCount = userData['cookbooks_count'] as int? ?? 0;
-          final recipesCount = userData['recipes_count'] as int? ?? 0;
-          final likesCount = userData['likes_count'] as int? ?? 0;
 
           emit(ProfileLoaded(
             userName: userName ?? '',
             profilePictureUrl: downloadUrl,
-            cookbooksCount: 5,
             recipesCount: 10,
             likesCount: 20,
           ));
@@ -102,6 +98,24 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       }
     } catch (e) {
       emit(ProfileError('Failed to update profile picture: $e'));
+    }
+  }
+
+  Future<void> _onFetchRecipesCount(
+      FetchRecipesCount event, Emitter<ProfileState> emit) async {
+    if (state is ProfileLoaded) {
+      final currentState = state as ProfileLoaded;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final recipesCount =
+            await FirestoreServices.getUserRecipesCount(user.uid);
+        emit(ProfileLoaded(
+          userName: currentState.userName,
+          profilePictureUrl: currentState.profilePictureUrl,
+          recipesCount: recipesCount,
+          likesCount: currentState.likesCount,
+        ));
+      }
     }
   }
 }

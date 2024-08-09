@@ -7,15 +7,13 @@ class ProfileLoading extends ProfileState {}
 class ProfileLoaded extends ProfileState {
   final String userName;
   final String profilePictureUrl;
-  final int cookbooksCount;
   final int recipesCount;
   final int likesCount;
 
   ProfileLoaded({
     required this.userName,
     required this.profilePictureUrl,
-    this.cookbooksCount = 0,
-    this.recipesCount = 0,
+    required this.recipesCount,
     this.likesCount = 0,
   });
 }

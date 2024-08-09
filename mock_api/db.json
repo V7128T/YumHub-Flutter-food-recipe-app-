@@ -374,7 +374,8 @@
       "unit": "package",
       "packageSize": 500,
       "packageUnit": "gram",
-      "image": "https://example.com/farfalle.jpg"
+      "image": "https://example.com/farfalle.jpg",
+      "stock": 50
     },
     {
       "id": 2,
@@ -384,6 +385,7 @@
       "packageSize": 100,
       "packageUnit": "gram",
       "image": "https://example.com/parsley.jpg",
+      "stock": 50,
       "aliases": ["freshly parsley", "flat leaf parsley"]
     },
     {
@@ -394,6 +396,7 @@
       "packageSize": 1,
       "packageUnit": "piece",
       "image": "https://example.com/garlic.jpg",
+      "stock": 50,
       "aliases": ["garlic cloves"]
     },
     {
@@ -403,7 +406,8 @@
       "unit": "container",
       "packageSize": 500,
       "packageUnit": "ml",
-      "image": "https://example.com/yogurt.jpg"
+      "image": "https://example.com/yogurt.jpg",
+      "stock": 50
     },
     {
       "id": 5,
@@ -412,7 +416,8 @@
       "unit": "package",
       "packageSize": 200,
       "packageUnit": "gram",
-      "image": "https://example.com/nuts.jpg"
+      "image": "https://example.com/nuts.jpg",
+      "stock": 50
     },
     {
       "id": 6,
@@ -421,7 +426,9 @@
       "unit": "bottle",
       "packageSize": 500,
       "packageUnit": "ml",
-      "image": "https://example.com/oliveoil.jpg"
+      "image": "https://example.com/oliveoil.jpg",
+      "stock": 50,
+      "aliases": ["olive oil extra virgin"]
     },
     {
       "id": 7,
@@ -430,7 +437,8 @@
       "unit": "package",
       "packageSize": 200,
       "packageUnit": "gram",
-      "image": "https://example.com/parmesan.jpg"
+      "image": "https://example.com/parmesan.jpg",
+      "stock": 50
     },
     {
       "id": 8,
@@ -440,6 +448,7 @@
       "packageSize": 500,
       "packageUnit": "gram",
       "image": "https://example.com/salt.jpg",
+      "stock": 50,
       "aliases": ["sea salt", "table salt"]
     },
     {
@@ -450,6 +459,7 @@
       "packageSize": 100,
       "packageUnit": "gram",
       "image": "https://example.com/pepper.jpg",
+      "stock": 50,
       "aliases": ["ground black pepper", "peppercorns"]
     },
     {
@@ -459,7 +469,8 @@
       "unit": "head",
       "packageSize": 1,
       "packageUnit": "kg",
-      "image": "https://example.com/napacabbage.jpg"
+      "image": "https://example.com/napacabbage.jpg",
+      "stock": 50
     },
     {
       "id": 11,
@@ -468,7 +479,8 @@
       "unit": "bunch",
       "packageSize": 100,
       "packageUnit": "gram",
-      "image": "https://example.com/scallions.jpg"
+      "image": "https://example.com/scallions.jpg",
+      "stock": 50
     },
     {
       "id": 12,
@@ -477,7 +489,8 @@
       "unit": "piece",
       "packageSize": 200,
       "packageUnit": "gram",
-      "image": "https://example.com/ginger.jpg"
+      "image": "https://example.com/ginger.jpg",
+      "stock": 50
     },
     {
       "id": 13,
@@ -486,7 +499,8 @@
       "unit": "container",
       "packageSize": 100,
       "packageUnit": "gram",
-      "image": "https://example.com/chillipepper.jpg"
+      "image": "https://example.com/chillipepper.jpg",
+      "stock": 50
     },
     {
       "id": 14,
@@ -495,7 +509,8 @@
       "unit": "package",
       "packageSize": 1,
       "packageUnit": "kg",
-      "image": "https://example.com/sugar.jpg"
+      "image": "https://example.com/sugar.jpg",
+      "stock": 50
     },
     {
       "id": 15,
@@ -504,7 +519,8 @@
       "unit": "package",
       "packageSize": 500,
       "packageUnit": "gram",
-      "image": "https://example.com/duck.jpg"
+      "image": "https://example.com/duck.jpg",
+      "stock": 50
     },
     {
       "id": 16,
@@ -513,7 +529,8 @@
       "unit": "carton",
       "packageSize": 12,
       "packageUnit": "piece",
-      "image": "https://example.com/eggs.jpg"
+      "image": "https://example.com/eggs.jpg",
+      "stock": 50
     },
     {
       "id": 17,
@@ -522,7 +539,8 @@
       "unit": "carton",
       "packageSize": 1,
       "packageUnit": "liter",
-      "image": "https://example.com/milk.jpg"
+      "image": "https://example.com/milk.jpg",
+      "stock": 50
     },
     {
       "id": 18,
@@ -531,7 +549,8 @@
       "unit": "package",
       "packageSize": 250,
       "packageUnit": "gram",
-      "image": "https://example.com/mushrooms.jpg"
+      "image": "https://example.com/mushrooms.jpg",
+      "stock": 50
     },
     {
       "id": 19,
@@ -540,7 +559,8 @@
       "unit": "piece",
       "packageSize": 1,
       "packageUnit": "piece",
-      "image": "https://example.com/onion.jpg"
+      "image": "https://example.com/onion.jpg",
+      "stock": 50
     },
     {
       "id": 20,
@@ -549,7 +569,8 @@
       "unit": "package",
       "packageSize": 500,
       "packageUnit": "gram",
-      "image": "https://example.com/puffpastry.jpg"
+      "image": "https://example.com/puffpastry.jpg",
+      "stock": 50
     },
     {
       "id": 21,
@@ -558,7 +579,8 @@
       "unit": "bottle",
       "packageSize": 750,
       "packageUnit": "ml",
-      "image": "https://example.com/redwine.jpg"
+      "image": "https://example.com/redwine.jpg",
+      "stock": 50
     },
     {
       "id": 22,
@@ -567,7 +589,8 @@
       "unit": "package",
       "packageSize": 1,
       "packageUnit": "kg",
-      "image": "https://example.com/beef.jpg"
+      "image": "https://example.com/beef.jpg",
+      "stock": 50
     },
     {
       "id": 23,
@@ -576,7 +599,8 @@
       "unit": "bunch",
       "packageSize": 50,
       "packageUnit": "gram",
-      "image": "https://example.com/thyme.jpg"
+      "image": "https://example.com/thyme.jpg",
+      "stock": 50
     },
     {
       "id": 24,
@@ -585,7 +609,8 @@
       "unit": "package",
       "packageSize": 250,
       "packageUnit": "gram",
-      "image": "https://example.com/bacon.jpg"
+      "image": "https://example.com/bacon.jpg",
+      "stock": 50
     },
     {
       "id": 25,
@@ -594,7 +619,8 @@
       "unit": "package",
       "packageSize": 200,
       "packageUnit": "gram",
-      "image": "https://example.com/creminimushrooms.jpg"
+      "image": "https://example.com/creminimushrooms.jpg",
+      "stock": 50
     },
     {
       "id": 26,
@@ -603,7 +629,8 @@
       "unit": "bunch",
       "packageSize": 2,
       "packageUnit": "piece",
-      "image": "https://example.com/leeks.jpg"
+      "image": "https://example.com/leeks.jpg",
+      "stock": 50
     },
     {
       "id": 27,
@@ -612,7 +639,8 @@
       "unit": "package",
       "packageSize": 500,
       "packageUnit": "gram",
-      "image": "https://example.com/orecchiette.jpg"
+      "image": "https://example.com/orecchiette.jpg",
+      "stock": 50
     },
     {
       "id": 28,
@@ -621,7 +649,8 @@
       "unit": "package",
       "packageSize": 200,
       "packageUnit": "gram",
-      "image": "https://example.com/peas.jpg"
+      "image": "https://example.com/peas.jpg",
+      "stock": 50
     },
     {
       "id": 29,
@@ -630,7 +659,8 @@
       "unit": "jar",
       "packageSize": 300,
       "packageUnit": "ml",
-      "image": "https://example.com/ghee.jpg"
+      "image": "https://example.com/ghee.jpg",
+      "stock": 50
     },
     {
       "id": 30,
@@ -639,7 +669,8 @@
       "unit": "package",
       "packageSize": 50,
       "packageUnit": "gram",
-      "image": "https://example.com/cinnamon.jpg"
+      "image": "https://example.com/cinnamon.jpg",
+      "stock": 50
     },
     {
       "id": 31,
@@ -648,7 +679,8 @@
       "unit": "package",
       "packageSize": 25,
       "packageUnit": "gram",
-      "image": "https://example.com/staranise.jpg"
+      "image": "https://example.com/staranise.jpg",
+      "stock": 50
     },
     {
       "id": 32,
@@ -657,7 +689,8 @@
       "unit": "package",
       "packageSize": 25,
       "packageUnit": "gram",
-      "image": "https://example.com/cloves.jpg"
+      "image": "https://example.com/cloves.jpg",
+      "stock": 50
     },
     {
       "id": 33,
@@ -666,7 +699,8 @@
       "unit": "package",
       "packageSize": 25,
       "packageUnit": "gram",
-      "image": "https://example.com/cardamom.jpg"
+      "image": "https://example.com/cardamom.jpg",
+      "stock": 50
     },
     {
       "id": 34,
@@ -675,7 +709,8 @@
       "unit": "can",
       "packageSize": 370,
       "packageUnit": "ml",
-      "image": "https://example.com/evaporatedmilk.jpg"
+      "image": "https://example.com/evaporatedmilk.jpg",
+      "stock": 50
     },
     {
       "id": 35,
@@ -684,7 +719,8 @@
       "unit": "package",
       "packageSize": 1,
       "packageUnit": "kg",
-      "image": "https://example.com/basmatirice.jpg"
+      "image": "https://example.com/basmatirice.jpg",
+      "stock": 50
     },
     {
       "id": 36,
@@ -693,7 +729,8 @@
       "unit": "container",
       "packageSize": 100,
       "packageUnit": "gram",
-      "image": "https://example.com/friedonions.jpg"
+      "image": "https://example.com/friedonions.jpg",
+      "stock": 50
     },
     {
       "id": 37,
@@ -702,7 +739,8 @@
       "unit": "package",
       "packageSize": 250,
       "packageUnit": "gram",
-      "image": "https://example.com/raisins.jpg"
+      "image": "https://example.com/raisins.jpg",
+      "stock": 50
     },
     {
       "id": 38,
@@ -711,7 +749,8 @@
       "unit": "package",
       "packageSize": 100,
       "packageUnit": "gram",
-      "image": "https://example.com/almondflakes.jpg"
+      "image": "https://example.com/almondflakes.jpg",
+      "stock": 50
     },
     {
       "id": 39,
@@ -720,7 +759,8 @@
       "unit": "bunch",
       "packageSize": 100,
       "packageUnit": "gram",
-      "image": "https://example.com/springonions.jpg"
+      "image": "https://example.com/springonions.jpg",
+      "stock": 50
     },
     {
       "id": 40,
@@ -730,6 +770,7 @@
       "packageSize": 500,
       "packageUnit": "gram",
       "image": "https://example.com/salt.jpg",
+      "stock": 50,
       "aliases": ["kosher salt and pepper", "salt & pepper"]
     }
   ],

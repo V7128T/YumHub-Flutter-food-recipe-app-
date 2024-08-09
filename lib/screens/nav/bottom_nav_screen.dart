@@ -24,23 +24,25 @@ final _recipeRepository = RecipeRepository();
 
 class _BottomNavViewState extends State<BottomNavView> {
   late PersistentTabController _controller;
+  late UniqueKey _ingredientManagerKey;
 
-  final List<Widget> _widgetOptions = <Widget>[
-    BlocProvider(
-      create: (context) => HomeRecipesBloc(),
-      child: const HomeRecipeScreen(),
-    ),
-    BlocProvider(
-      create: (context) => SearchPageCubit(_recipeRepository),
-      child: const SearchPage(),
-    ),
-    const IngredientManagerPage(),
-    const More(),
-    BlocProvider(
-      create: (context) => ProfileBloc()..add(LoadProfile()),
-      child: const ProfilePage(),
-    ),
-  ];
+  List<Widget> get _widgetOptions => [
+        BlocProvider(
+          create: (context) => HomeRecipesBloc(),
+          child: const HomeRecipeScreen(),
+        ),
+        BlocProvider(
+          create: (context) => SearchPageCubit(_recipeRepository),
+          child: const SearchPage(),
+        ),
+        IngredientManagerPage(
+            key: _ingredientManagerKey), // Now this is allowed
+        const More(),
+        BlocProvider(
+          create: (context) => ProfileBloc()..add(LoadProfile()),
+          child: const ProfilePage(),
+        ),
+      ];
 
   ///Bottom Navigation Bar Childrens
   List<PersistentBottomNavBarItem> _navBarsItems() {
@@ -93,10 +95,22 @@ class _BottomNavViewState extends State<BottomNavView> {
     ];
   }
 
+  void _handleTabChange() {
+    if (_controller.index == 2) {
+      // Index 2 is IngredientManagerPage
+      // Force a refresh of IngredientManagerPage
+      setState(() {
+        _ingredientManagerKey = UniqueKey();
+      });
+    }
+  }
+
   @override
   void initState() {
     ///Initial Passing index as 0
     _controller = PersistentTabController(initialIndex: 0);
+    _controller.addListener(_handleTabChange);
+    _ingredientManagerKey = UniqueKey();
     super.initState();
   }
 

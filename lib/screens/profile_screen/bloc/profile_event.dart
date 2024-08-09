@@ -9,3 +9,5 @@ class UpdateProfilePicture extends ProfileEvent {
 
   UpdateProfilePicture(this.imagePath);
 }
+
+class FetchRecipesCount extends ProfileEvent {}

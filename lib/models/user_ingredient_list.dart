@@ -55,11 +55,13 @@ class UserIngredientList extends ChangeNotifier {
             .indexWhere((i) => i.uniqueId == updatedIngredient.uniqueId);
 
         if (index != -1) {
+          // Convert only the updated ingredient
+          await updatedIngredient.convertToGrams(_conversionService);
+
           ingredients[index] = updatedIngredient;
           recipe.extendedIngredients = ingredients;
           _userRecipes[recipeId] = recipe;
 
-          await convertIngredients();
           notifyListeners();
 
           // Update Firestore
@@ -97,18 +99,9 @@ class UserIngredientList extends ChangeNotifier {
       await ingredient.convertToGrams(_conversionService);
     }
     _userRecipes[recipe.id.toString()] = recipe;
-    print("Adding recipe: ${recipe.title}");
-    print(
-        "Recipe ingredients before saving: ${recipe.extendedIngredients?.map((e) => '${e.name}: ${e.convertedAmount} ${e.convertedUnit}').join(', ')}");
 
     await FirestoreServices.saveUserRecipe(
         userId, recipe.id.toString(), recipe);
-
-    // Fetch the saved recipe from Firestore to verify the data
-    final savedRecipe =
-        await FirestoreServices.getRecipe(userId, recipe.id.toString());
-    print(
-        "Recipe ingredients after saving: ${savedRecipe.extendedIngredients?.map((e) => '${e.name}: ${e.convertedAmount} ${e.convertedUnit}').join(', ')}");
 
     notifyListeners();
   }
@@ -308,7 +301,6 @@ class UserIngredientList extends ChangeNotifier {
                 "Loaded Ingredient: ${ingredient.name} - Converted: ${ingredient.convertedAmount} ${ingredient.convertedUnit}");
           });
         });
-        await convertIngredients();
         notifyListeners();
       }
     }
