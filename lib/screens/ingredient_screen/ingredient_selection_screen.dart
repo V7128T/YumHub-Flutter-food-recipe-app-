@@ -7,6 +7,9 @@ import 'package:food_recipe_app/repo/get_recipe_info.dart';
 import 'package:food_recipe_app/models/recipe.dart';
 import 'package:food_recipe_app/services/conversion_service.dart';
 
+import '../profile_screen/bloc/profile_bloc.dart';
+import '../profile_screen/bloc/profile_event.dart';
+
 class IngredientSelectionScreen extends StatefulWidget {
   final List<ExtendedIngredient> recipeIngredients;
   final String recipeId;
@@ -128,7 +131,10 @@ class _IngredientSelectionScreenState extends State<IngredientSelectionScreen> {
 
         await Provider.of<UserIngredientList>(context, listen: false)
             .addRecipe(recipe, user.uid);
-
+        final newCount = Provider.of<UserIngredientList>(context, listen: false)
+            .userRecipes
+            .length;
+        context.read<ProfileBloc>().add(UpdateRecipesCount(newCount));
         Navigator.pop(context);
       } catch (e) {
         print("Error in _addSelectedIngredients: $e");

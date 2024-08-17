@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/auth_methods/auth.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:food_recipe_app/screens/nav/bottom_nav_screen.dart';
@@ -11,20 +13,25 @@ import 'package:food_recipe_app/screens/authentication_screen/signin.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:food_recipe_app/models/user_ingredient_list.dart';
 
+import 'screens/profile_screen/bloc/profile_bloc.dart';
+import 'screens/profile_screen/bloc/profile_event.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  ///Commenting it out for a time being
-  // var dir = await getApplicationDocumentsDirectory();
-  // await Hive.init(dir.path);
-  //await Hive.openBox('Favorite');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  FirebaseDatabase.instance.databaseURL =
+      'https://yumhub-483b7-default-rtdb.asia-southeast1.firebasedatabase.app';
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => UserIngredientList(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserIngredientList()),
+        BlocProvider(create: (_) => ProfileBloc()..add(LoadProfile())),
+      ],
       child: const MyApp(),
     ),
   );

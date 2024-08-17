@@ -24,7 +24,7 @@ final _recipeRepository = RecipeRepository();
 
 class _BottomNavViewState extends State<BottomNavView> {
   late PersistentTabController _controller;
-  late UniqueKey _ingredientManagerKey;
+  late UniqueKey _ingredientManagerKey, _profileKey;
 
   List<Widget> get _widgetOptions => [
         BlocProvider(
@@ -35,13 +35,9 @@ class _BottomNavViewState extends State<BottomNavView> {
           create: (context) => SearchPageCubit(_recipeRepository),
           child: const SearchPage(),
         ),
-        IngredientManagerPage(
-            key: _ingredientManagerKey), // Now this is allowed
+        IngredientManagerPage(key: _ingredientManagerKey),
         const More(),
-        BlocProvider(
-          create: (context) => ProfileBloc()..add(LoadProfile()),
-          child: const ProfilePage(),
-        ),
+        ProfilePage(key: _profileKey),
       ];
 
   ///Bottom Navigation Bar Childrens
@@ -102,6 +98,10 @@ class _BottomNavViewState extends State<BottomNavView> {
       setState(() {
         _ingredientManagerKey = UniqueKey();
       });
+    } else if (_controller.index == 4) {
+      setState(() {
+        _profileKey = UniqueKey();
+      });
     }
   }
 
@@ -111,6 +111,7 @@ class _BottomNavViewState extends State<BottomNavView> {
     _controller = PersistentTabController(initialIndex: 0);
     _controller.addListener(_handleTabChange);
     _ingredientManagerKey = UniqueKey();
+    _profileKey = UniqueKey();
     super.initState();
   }
 

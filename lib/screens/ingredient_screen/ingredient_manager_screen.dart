@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/models/categorized_ingredients.dart';
 import 'package:food_recipe_app/models/recipe.dart';
 import 'package:food_recipe_app/models/shopping_list_item.dart';
+import 'package:food_recipe_app/screens/profile_screen/bloc/profile_event.dart';
 import 'package:food_recipe_app/screens/recipe_info/bloc/recipe_info_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,8 @@ import 'package:food_recipe_app/custom_dialogs/custom_fab_location.dart';
 import 'package:food_recipe_app/screens/shopping_list/shopping_list_manager.dart';
 import 'package:food_recipe_app/screens/shopping_list/shopping_list_screen.dart';
 import 'package:uuid/uuid.dart';
+
+import '../profile_screen/bloc/profile_bloc.dart';
 
 class IngredientManagerPage extends StatefulWidget {
   const IngredientManagerPage({super.key});
@@ -338,6 +341,10 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                     if (user != null) {
                       userIngredientList.clearRecipe(
                           user.uid, recipe.id.toString());
+                      final newCount = userIngredientList.userRecipes.length;
+                      context
+                          .read<ProfileBloc>()
+                          .add(UpdateRecipesCount(newCount));
                     }
                   },
                   background: Container(

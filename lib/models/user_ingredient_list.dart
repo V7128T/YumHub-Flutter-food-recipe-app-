@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:food_recipe_app/models/extended_ingredient.dart';
 import 'package:food_recipe_app/models/categorized_ingredients.dart';
@@ -9,6 +10,7 @@ import 'package:food_recipe_app/services/conversion_service.dart';
 import 'removed_ingredients.dart';
 
 class UserIngredientList extends ChangeNotifier {
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
   final Map<String, Recipe> _userRecipes = {};
   final List<Recipe> _recentlyDeletedRecipes = [];
   final ConversionService _conversionService = ConversionService();
@@ -194,11 +196,8 @@ class UserIngredientList extends ChangeNotifier {
 
   Future<void> addToShoppingList(String userId, ShoppingListItem item) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('shopping_list')
-          .doc(item.id)
+      await _database
+          .child('users/$userId/shopping_list/${item.id}')
           .set(item.toJson());
       notifyListeners();
     } catch (e) {

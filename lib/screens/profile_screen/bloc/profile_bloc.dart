@@ -19,6 +19,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<SignOut>(_onSignOut);
     on<UpdateProfilePicture>(_onUpdateProfilePicture);
     on<FetchRecipesCount>(_onFetchRecipesCount);
+    on<UpdateRecipesCount>(_onUpdateRecipesCount);
   }
 
   FutureOr<void> _onLoadProfile(
@@ -113,6 +114,25 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           userName: currentState.userName,
           profilePictureUrl: currentState.profilePictureUrl,
           recipesCount: recipesCount,
+          likesCount: currentState.likesCount,
+        ));
+      }
+    }
+  }
+
+  Future<void> _onUpdateRecipesCount(
+      UpdateRecipesCount event, Emitter<ProfileState> emit) async {
+    if (state is ProfileLoaded) {
+      final currentState = state as ProfileLoaded;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await _firestore.collection('users').doc(user.uid).update({
+          'recipes_count': event.count,
+        });
+        emit(ProfileLoaded(
+          userName: currentState.userName,
+          profilePictureUrl: currentState.profilePictureUrl,
+          recipesCount: event.count,
           likesCount: currentState.likesCount,
         ));
       }

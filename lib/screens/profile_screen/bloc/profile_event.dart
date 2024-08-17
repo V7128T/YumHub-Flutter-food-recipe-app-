@@ -11,3 +11,9 @@ class UpdateProfilePicture extends ProfileEvent {
 }
 
 class FetchRecipesCount extends ProfileEvent {}
+
+class UpdateRecipesCount extends ProfileEvent {
+  final int count;
+
+  UpdateRecipesCount(this.count);
+}

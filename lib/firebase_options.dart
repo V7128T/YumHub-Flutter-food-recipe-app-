@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:12092742398:android:0112f6e89bddbe0daf63af',
     messagingSenderId: '12092742398',
     projectId: 'yumhub-483b7',
+    databaseURL: 'https://yumhub-483b7-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'yumhub-483b7.appspot.com',
   );
 
@@ -62,6 +63,7 @@ class DefaultFirebaseOptions {
     appId: '1:12092742398:ios:1b3288cfea27e7aeaf63af',
     messagingSenderId: '12092742398',
     projectId: 'yumhub-483b7',
+    databaseURL: 'https://yumhub-483b7-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'yumhub-483b7.appspot.com',
     androidClientId: '12092742398-5uuj8necclhd3uhv8slk97r9guha5g02.apps.googleusercontent.com',
     iosClientId: '12092742398-14i5rc99u31ttjihc6rjb6rck0nl1v29.apps.googleusercontent.com',

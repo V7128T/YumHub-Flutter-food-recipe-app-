@@ -428,7 +428,7 @@
       "packageUnit": "ml",
       "image": "https://example.com/oliveoil.jpg",
       "stock": 50,
-      "aliases": ["olive oil extra virgin"]
+      "aliases": ["olive oil extra virgin", "extra virgin olive oil"]
     },
     {
       "id": 7,
@@ -540,7 +540,8 @@
       "packageSize": 1,
       "packageUnit": "liter",
       "image": "https://example.com/milk.jpg",
-      "stock": 50
+      "stock": 50,
+      "aliases": ["liquid milk"]
     },
     {
       "id": 18,
@@ -772,7 +773,138 @@
       "image": "https://example.com/salt.jpg",
       "stock": 50,
       "aliases": ["kosher salt and pepper", "salt & pepper"]
+    },
+    {
+      "id": 41,
+      "name": "Butter",
+      "price": 3.99,
+      "unit": "package",
+      "packageSize": 250,
+      "packageUnit": "gram",
+      "image": "https://example.com/butter.jpg",
+      "stock": 0
+    },
+    {
+      "id": 42,
+      "name": "Brown Sugar",
+      "price": 1.99,
+      "unit": "package",
+      "packageSize": 250,
+      "packageUnit": "gram",
+      "image": "https://example.com/brownsugar.jpg",
+      "stock": 50,
+      "aliases": ["firmly brown sugar"]
+    },
+    {
+      "id": 43,
+      "name": "Fresh Basil Leaf",
+      "price": 1.99,
+      "unit": "bunch",
+      "packageSize": 100,
+      "packageUnit": "gram",
+      "image": "https://example.com/basil.jpg",
+      "stock": 50,
+      "aliases": ["lightly basil leaves", "basil leaves"]
+    },
+    {
+      "id": 44,
+      "name": "Blueberries",
+      "price": 4.99,
+      "unit": "package",
+      "packageSize": 125,
+      "packageUnit": "gram",
+      "image": "https://example.com/blueberries.jpg",
+      "stock": 50,
+      "aliases": ["blueberry juice", "blueberry", "blueberries juice"]
+    },
+    {
+      "id": 45,
+      "name": "Orange",
+      "price": 0.99,
+      "unit": "piece",
+      "packageSize": 1,
+      "packageUnit": "piece",
+      "image": "https://example.com/orange.jpg",
+      "stock": 50,
+      "aliases": ["orange juice", "juice of orange"]
+    },
+    {
+      "id": 46,
+      "name": "Mango",
+      "price": 2.49,
+      "unit": "piece",
+      "packageSize": 1,
+      "packageUnit": "piece",
+      "image": "https://example.com/mango.jpg",
+      "stock": 50,
+      "aliases": ["mangoes", "mango juice", "juice of mango"]
+    },
+    {
+      "id": 47,
+      "name": "Pomegranate",
+      "price": 3.99,
+      "unit": "piece",
+      "packageSize": 1,
+      "packageUnit": "piece",
+      "image": "https://example.com/pomegranate.jpg",
+      "stock": 50,
+      "aliases": ["pomegranate juice"]
+    },
+    {
+      "id": 48,
+      "name": "Strawberries",
+      "price": 5.99,
+      "unit": "package",
+      "packageSize": 250,
+      "packageUnit": "gram",
+      "image": "https://example.com/strawberries.jpg",
+      "stock": 50,
+      "aliases": ["strawberry juice", "strawberry"]
+    },
+    {
+      "id": 49,
+      "name": "Flour",
+      "price": 2.99,
+      "unit": "bag",
+      "packageSize": 1000,
+      "packageUnit": "gram",
+      "image": "https://example.com/flour.jpg",
+      "stock": 50,
+      "aliases": ["all-purpose flour", "wheat flour"]
+    },
+    {
+      "id": 50,
+      "name": "Self-Rising Flour",
+      "price": 3.49,
+      "unit": "bag",
+      "packageSize": 1000,
+      "packageUnit": "gram",
+      "image": "https://example.com/selfrisingflour.jpg",
+      "stock": 50,
+      "aliases": ["self-raising flour", "rising flour"]
+    },
+    {
+      "id": 51,
+      "name": "Baking Powder",
+      "price": 1.99,
+      "unit": "can",
+      "packageSize": 250,
+      "packageUnit": "gram",
+      "image": "https://example.com/bakingpowder.jpg",
+      "stock": 50,
+      "aliases": ["baking soda", "leavening agent"]
+    },
+    {
+      "id": 52,
+      "name": "Non-Fat Sour Cream",
+      "price": 2.99,
+      "unit": "tub",
+      "packageSize": 450,
+      "packageUnit": "gram",
+      "image": "https://example.com/nonfatsourcream.jpg",
+      "stock": 50,
+      "aliases": ["fat-free sour cream", "low-fat sour cream"]
     }
-  ],
-  "shopping_list": []
+    
+  ]
 }

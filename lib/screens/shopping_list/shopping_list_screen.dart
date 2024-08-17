@@ -4,6 +4,11 @@ import 'package:food_recipe_app/screens/shopping_list/merge_shopping_list.dart';
 import 'package:food_recipe_app/screens/shopping_list/shopping_list_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
 
 class ShoppingListScreen extends StatefulWidget {
   const ShoppingListScreen({super.key});
@@ -36,13 +41,23 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     if (user != null) {
       try {
         final list = await _shoppingListManager.getShoppingList(user.uid);
+        print('Fetched shopping list: ${list.length} items');
+
+        final unavailable = _shoppingListManager.getUnavailableItems(list);
+        print('Unavailable items: ${unavailable.length}');
+
+        final availableItems = list.where((item) {
+          final product = _shoppingListManager.findProductByName(item.name);
+          return product != null && product.stock > 0;
+        }).toList();
+
+        final merged = _shoppingListManager.mergeShoppingList(availableItems);
+        print('Merged shopping list: ${merged.length} items');
+
         setState(() {
-          mergedShoppingList = _shoppingListManager.mergeShoppingList(list);
-          unavailableItems = list
-              .where((item) =>
-                  _shoppingListManager.findProductByName(item.name) == null)
-              .toList();
           shoppingList = list;
+          unavailableItems = unavailable;
+          mergedShoppingList = merged;
           _isLoading = false;
         });
       } catch (e) {
@@ -64,39 +79,62 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   }
 
   Widget _buildMergedShoppingListItem(MergedShoppingListItem item) {
-    return ListTile(
-      title: Text(item.product.name,
-          style: GoogleFonts.chivo(fontWeight: FontWeight.w500)),
-      subtitle: Text(
-        'RM ${item.product.price.toStringAsFixed(2)} / ${item.product.packageSize} ${item.product.packageUnit}',
-        style: GoogleFonts.chivo(),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.remove, color: Colors.black),
-            onPressed: () => _updateQuantity(item, -1),
-          ),
-          Text(
-            '${item.quantity}',
-            style: GoogleFonts.chivo(
-              textStyle: const TextStyle(color: Colors.black, fontSize: 16.0),
+    final inStock = item.product.stock > 0;
+
+    if (!inStock) {
+      return const SizedBox.shrink(); // Don't display out-of-stock items
+    }
+
+    final canIncrease = item.quantity < item.product.stock;
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: item.quantity > 0 ? 1.0 : 0.0,
+      child: ListTile(
+        title: Text(item.product.name,
+            style: GoogleFonts.chivo(fontWeight: FontWeight.w500)),
+        subtitle: Text(
+          'RM ${item.product.price.toStringAsFixed(2)} / ${item.product.packageSize} ${item.product.packageUnit}',
+          style: GoogleFonts.chivo(),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.remove, color: Colors.black),
+              onPressed: () => _updateQuantity(item, -1),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.black),
-            onPressed: () => _updateQuantity(item, 1),
-          ),
-        ],
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: Text(
+                '${item.quantity}',
+                key: ValueKey<int>(item.quantity),
+                style: GoogleFonts.chivo(
+                  textStyle:
+                      const TextStyle(color: Colors.black, fontSize: 16.0),
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add, color: Colors.black),
+              onPressed: canIncrease ? () => _updateQuantity(item, 1) : null,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildUnavailableItem(ShoppingListItem item) {
+    final product = _shoppingListManager.findProductByName(item.name);
+    final message = product == null ? 'Not available in store' : 'Out of stock';
+
     return ListTile(
       title: Text(
-        '${item.name} (not available in store)',
+        '${item.name} ($message)',
         style: GoogleFonts.chivo(color: Colors.red),
       ),
       subtitle: Text('${item.amount} ${item.unit}', style: GoogleFonts.chivo()),
@@ -107,37 +145,41 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final newQuantity = item.quantity + change;
+      print(
+          'Updating quantity for ${item.product.name} from ${item.quantity} to $newQuantity');
       if (newQuantity > 0) {
-        // Update all original items
+        // Update UI immediately
+        setState(() {
+          item.quantity = newQuantity;
+          for (var originalItem in item.originalItems) {
+            originalItem.quantity = newQuantity;
+          }
+        });
+
+        // Update database
         for (var originalItem in item.originalItems) {
           await _shoppingListManager.updateItemQuantity(
-              user.uid,
-              originalItem.id,
-              (originalItem.quantity * newQuantity) ~/ item.quantity);
+            user.uid,
+            originalItem.id,
+            newQuantity,
+          );
         }
       } else {
-        // Remove all original items
+        // Remove item if quantity is 0 or less
+        setState(() {
+          mergedShoppingList.remove(item);
+          shoppingList.removeWhere(
+              (shoppingItem) => item.originalItems.contains(shoppingItem));
+        });
+
+        // Remove from database
         for (var originalItem in item.originalItems) {
           await _shoppingListManager.removeFromShoppingList(
-              user.uid, originalItem.id);
+            user.uid,
+            originalItem.id,
+          );
         }
       }
-      await _loadShoppingList();
-    }
-  }
-
-  Future<void> _updateIndividualQuantity(
-      ShoppingListItem item, int change) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final newQuantity = item.quantity + change;
-      if (newQuantity > 0) {
-        await _shoppingListManager.updateItemQuantity(
-            user.uid, item.id, newQuantity);
-      } else {
-        await _shoppingListManager.removeFromShoppingList(user.uid, item.id);
-      }
-      await _loadShoppingList();
     }
   }
 
@@ -166,14 +208,49 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
             TextButton(
               child: Text('Purchase',
                   style: GoogleFonts.chivo(color: Colors.green)),
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text('Purchase completed!',
-                          style: GoogleFonts.chivo())),
-                );
-                _clearShoppingList();
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  try {
+                    List<Map<String, dynamic>> purchasedItems = [];
+                    double totalAmount = 0;
+
+                    for (var item in mergedShoppingList) {
+                      final newStock = item.product.stock - item.quantity;
+                      if (newStock < 0) {
+                        throw Exception(
+                            'Not enough stock for ${item.product.name}');
+                      }
+                      await _shoppingListManager.updateProductStock(
+                          item.product.name, newStock);
+                      print(
+                          'Updated stock for ${item.product.name} to $newStock');
+
+                      // Add item to the purchased items list
+                      purchasedItems.add({
+                        'name': item.product.name,
+                        'quantity': item.quantity,
+                        'price': item.product.price,
+                        'total': item.quantity * item.product.price,
+                      });
+                      totalAmount += item.quantity * item.product.price;
+                    }
+
+                    await _shoppingListManager.clearShoppingList(user.uid);
+                    await _loadShoppingList();
+
+                    // Generate and show receipt
+                    _showReceipt(purchasedItems, totalAmount);
+                  } catch (e) {
+                    print('Error during purchase: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text('Purchase failed: $e',
+                              style: GoogleFonts.chivo())),
+                    );
+                  }
+                }
               },
             ),
           ],
@@ -182,46 +259,89 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     );
   }
 
-  Widget _buildShoppingListItem(ShoppingListItem item) {
-    final product = _shoppingListManager.findProductByName(item.name);
-    if (product == null) {
-      return ListTile(
-        title: Text(
-          '${item.name} (not available in store)',
-          style: GoogleFonts.poppins(
-              textStyle: const TextStyle(color: Colors.red)),
-        ),
-        subtitle:
-            Text('${item.amount} ${item.unit}', style: GoogleFonts.poppins()),
-      );
-    }
+  Future<void> _showReceipt(
+      List<Map<String, dynamic>> items, double totalAmount) async {
+    final pdf = pw.Document();
 
-    return ListTile(
-      title: Text(product.name,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-      subtitle: Text(
-        'RM ${product.price.toStringAsFixed(2)} / ${product.packageSize} ${product.packageUnit}',
-        style: GoogleFonts.poppins(),
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('Receipt',
+                  style: pw.TextStyle(
+                      fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 20),
+              pw.Table(
+                border: pw.TableBorder.all(),
+                children: [
+                  pw.TableRow(
+                    children: [
+                      pw.Text('Item',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Quantity',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Price',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Total',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ],
+                  ),
+                  ...items
+                      .map((item) => pw.TableRow(
+                            children: [
+                              pw.Text(item['name']),
+                              pw.Text(item['quantity'].toString()),
+                              pw.Text('RM ${item['price'].toStringAsFixed(2)}'),
+                              pw.Text('RM ${item['total'].toStringAsFixed(2)}'),
+                            ],
+                          ))
+                      .toList(),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text('Total Amount: RM ${totalAmount.toStringAsFixed(2)}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            ],
+          );
+        },
       ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.remove, color: Colors.black),
-            onPressed: () => _updateIndividualQuantity(item, -1),
-          ),
-          Text(
-            '${item.quantity}',
-            style: GoogleFonts.poppins(
-              textStyle: const TextStyle(color: Colors.black, fontSize: 16.0),
+    );
+
+    final output = await getTemporaryDirectory();
+    final file = File('${output.path}/receipt.pdf');
+    await file.writeAsBytes(await pdf.save());
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Purchase Completed',
+              style: GoogleFonts.chivo(fontWeight: FontWeight.bold)),
+          content: Text(
+              'Your purchase was successful. Would you like to share the receipt?',
+              style: GoogleFonts.chivo()),
+          actions: <Widget>[
+            TextButton(
+              child: Text('No', style: GoogleFonts.chivo()),
+              onPressed: () => Navigator.of(context).pop(),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.black),
-            onPressed: () => _updateIndividualQuantity(item, 1),
-          ),
-        ],
-      ),
+            TextButton(
+              child:
+                  Text('Share', style: GoogleFonts.chivo(color: Colors.green)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Share.shareXFiles(
+                  [XFile(file.path)],
+                  subject: 'Purchase Receipt',
+                  text: 'Here is my purchase receipt',
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -276,7 +396,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                               color: Colors.red),
                         ),
                       ),
-                      ...unavailableItems.map(_buildShoppingListItem),
+                      ...unavailableItems.map(_buildUnavailableItem),
                     ],
                   ],
                 ),
@@ -290,7 +410,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: shoppingList.isEmpty ? null : _showPurchaseConfirmation,
+          onPressed:
+              mergedShoppingList.isEmpty ? null : _showPurchaseConfirmation,
           child: Text('Purchase',
               style: GoogleFonts.chivo(fontSize: 16, color: Colors.white)),
         ),
