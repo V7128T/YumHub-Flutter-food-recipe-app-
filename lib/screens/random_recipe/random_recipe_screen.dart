@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/widgets/loading_widget.dart';
+import '../../custom_dialogs/error_widget.dart';
 import 'bloc/random_recipe_bloc.dart';
 import 'widgets/recipe_info_success_widget.dart';
 
 class RandomRecipe extends StatefulWidget {
-  const RandomRecipe({Key? key}) : super(key: key);
+  const RandomRecipe({super.key});
 
   @override
   State<RandomRecipe> createState() => _RandomRecipeState();
@@ -34,7 +35,7 @@ class _RandomRecipeState extends State<RandomRecipe> {
               return const Center(child: LoadingWidget());
             } else if (state is RandomRecipeSuccesState) {
               ///On Success
-              return RacipeInfoWidget(
+              return RecipeInfoWidget(
                 equipment: state.equipment,
                 info: state.recipe,
                 nutrient: state.nutrient,
@@ -42,13 +43,15 @@ class _RandomRecipeState extends State<RandomRecipe> {
                 recipeId: state.recipe.id.toString(),
               );
             } else if (state is RandomRecipeErrorState) {
-              ///On Failure
-              return const Center(
-                child: Text("An error occured.. Please try again later."),
+              return ErrorDisplay(
+                errorMessage: state.errorMessage
+                        .contains('API call limit reached')
+                    ? "You've reached the daily limit of 150 API calls. Please try again tomorrow or upgrade your plan."
+                    : state.errorMessage,
               );
             } else {
               return const Center(
-                child: Text("Nothing happens"),
+                child: Text("Unexpected state. Please restart the app."),
               );
             }
           },

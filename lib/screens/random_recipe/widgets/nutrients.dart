@@ -1,281 +1,157 @@
 import 'package:flutter/material.dart';
 import '../../../models/nutrients.dart';
-import 'expandable.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class NutrientsWidgets extends StatelessWidget {
+class CompactNutritionWidget extends StatefulWidget {
   final Nutrient nutrient;
 
-  const NutrientsWidgets({Key? key, required this.nutrient}) : super(key: key);
+  const CompactNutritionWidget({super.key, required this.nutrient});
+
+  @override
+  _CompactNutritionWidgetState createState() => _CompactNutritionWidgetState();
+}
+
+class _CompactNutritionWidgetState extends State<CompactNutritionWidget> {
+  bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: ExpandableGroup(
-          isExpanded: false,
-          collapsedIcon: const Icon(Icons.arrow_drop_down),
-          header: Text(
-            "Nutrients",
-            style: GoogleFonts.workSans(
-              textStyle: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w700,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildMainNutrients(),
+        const SizedBox(height: 10),
+        _buildExpandableSection(),
+      ],
+    );
+  }
+
+  Widget _buildMainNutrients() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildNutrientCard(Icons.local_fire_department, "Calories",
+            widget.nutrient.calories, "kcal"),
+        _buildNutrientCard(Icons.grain, "Carbs", widget.nutrient.carbs, "g"),
+        _buildNutrientCard(
+            Icons.accessibility_new, "Protein", widget.nutrient.protein, "g"),
+        _buildNutrientCard(Icons.opacity, "Fat", widget.nutrient.fat, "g"),
+      ],
+    );
+  }
+
+  Widget _buildNutrientCard(
+      IconData icon, String label, String value, String unit) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            Icon(icon, color: Colors.orange[800], size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style:
+                  GoogleFonts.chivo(fontSize: 12, fontWeight: FontWeight.bold),
             ),
-          ),
-          items: [
-            ListTile(
-                contentPadding: const EdgeInsets.all(10),
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.fireplace,
-                    size: 35,
-                    color: Colors.orange,
-                  ),
-                ),
-                title: Text(
-                  "Calories(kcal)",
-                  style: GoogleFonts.workSans(
-                    textStyle: const TextStyle(
-                      fontSize: 15.0,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                trailing: Text(
-                  nutrient.calories,
-                  style: GoogleFonts.workSans(
-                    textStyle: const TextStyle(
-                      fontSize: 18.0,
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )),
-            ListTile(
-                contentPadding: const EdgeInsets.all(10),
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.face_outlined,
-                    size: 35,
-                    color: Colors.orange,
-                  ),
-                ),
-                title: Text(
-                  "Fat",
-                  style: GoogleFonts.workSans(
-                    textStyle: const TextStyle(
-                      fontSize: 15.0,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                trailing: Text(
-                  nutrient.fat,
-                  style: GoogleFonts.workSans(
-                    textStyle: const TextStyle(
-                      fontSize: 18.0,
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )),
-            ListTile(
-                contentPadding: const EdgeInsets.all(10),
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.bakery_dining,
-                    size: 35,
-                    color: Colors.orange,
-                  ),
-                ),
-                title: Text(
-                  "Carbohydrates",
-                  style: GoogleFonts.workSans(
-                    textStyle: const TextStyle(
-                      fontSize: 15.0,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                trailing: Text(
-                  nutrient.carbs,
-                  style: GoogleFonts.workSans(
-                    textStyle: const TextStyle(
-                      fontSize: 18.0,
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )),
-            ListTile(
-              contentPadding: const EdgeInsets.all(10),
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.bolt_outlined,
-                  size: 35,
-                  color: Colors.orange,
-                ),
-              ),
-              title: Text(
-                "Protein",
-                style: GoogleFonts.workSans(
-                  textStyle: const TextStyle(
-                    fontSize: 15.0,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              trailing: Text(
-                nutrient.protein,
-                style: GoogleFonts.workSans(
-                  textStyle: const TextStyle(
-                    fontSize: 18.0,
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+            Text(
+              "$value$unit",
+              style: GoogleFonts.chivo(
+                  fontSize: 14,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class NutrientsbadWidget extends StatelessWidget {
-  final Nutrient nutrient;
-
-  const NutrientsbadWidget({Key? key, required this.nutrient})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: ExpandableGroup(
-          isExpanded: false,
-          collapsedIcon: const Icon(Icons.arrow_drop_down),
-          header: Text(
-            "Bad Nutrients Scores",
-            style: GoogleFonts.workSans(
-              textStyle: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+  Widget _buildExpandableSection() {
+    return ExpansionTile(
+      title: Text(
+        "Detailed Nutrition Information",
+        style: GoogleFonts.chivo(
+          textStyle: TextStyle(
+            fontSize: 16,
+            color: Colors.orange[600],
+            fontWeight: FontWeight.bold,
           ),
-          items: [
-            ...nutrient.bad.map((nutri) {
-              return ListTile(
-                contentPadding: const EdgeInsets.all(10),
-                subtitle: Text("${nutri.percentOfDailyNeeds}% of Daily needs."),
-                title: Text(
-                  nutri.name.toString(),
-                  style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-                trailing: Text(
-                  nutri.amount,
-                  style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold),
-                ),
-              );
-            }).toList()
-          ],
         ),
       ),
+      children: [
+        _buildNutrientSection("Nutrients to Monitor", widget.nutrient.bad),
+        const SizedBox(height: 10),
+        _buildNutrientSection("Beneficial Nutrients", widget.nutrient.good),
+      ],
+      onExpansionChanged: (expanded) {
+        setState(() {
+          _isExpanded = expanded;
+        });
+      },
     );
   }
-}
 
-class NutrientsgoodWidget extends StatelessWidget {
-  final Nutrient nutrient;
-
-  const NutrientsgoodWidget({Key? key, required this.nutrient})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(10),
-            bottomRight: Radius.circular(10),
-          ),
-        ),
-        child: ExpandableGroup(
-          isExpanded: false,
-          collapsedIcon: const Icon(Icons.arrow_drop_down),
-          header: Text(
-            "Good Nutrients Scores",
-            style: GoogleFonts.workSans(
+  Widget _buildNutrientSection(String title, List<Needs> nutrients) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            title,
+            style: GoogleFonts.chivo(
               textStyle: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          items: [
-            ...nutrient.good.map((nutri) {
-              return ListTile(
-                contentPadding: const EdgeInsets.all(10),
-                subtitle: Text("${nutri.percentOfDailyNeeds}% of Daily needs."),
-                title: Text(
-                  nutri.name.toString(),
-                  style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-                trailing: Text(
-                  nutri.amount,
-                  style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold),
-                ),
-              );
-            }).toList()
-          ],
         ),
+        ...nutrients.map((nutri) => _buildNutrientTile(nutri)).toList(),
+      ],
+    );
+  }
+
+  Widget _buildNutrientTile(Needs nutrient) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              nutrient.name,
+              style:
+                  GoogleFonts.chivo(fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              nutrient.amount,
+              style: GoogleFonts.chivo(
+                  fontSize: 12,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: LinearProgressIndicator(
+              value: double.parse(nutrient.percentOfDailyNeeds) / 100,
+              backgroundColor: Colors.grey[200],
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange[800]!),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            "${nutrient.percentOfDailyNeeds}%",
+            style: GoogleFonts.chivo(fontSize: 12, color: Colors.grey[600]),
+          ),
+        ],
       ),
     );
   }

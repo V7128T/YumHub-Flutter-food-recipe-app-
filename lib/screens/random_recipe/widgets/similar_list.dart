@@ -10,7 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 class SimilarListWidget extends StatelessWidget {
   final List<Similar> items;
 
-  const SimilarListWidget({Key? key, required this.items}) : super(key: key);
+  const SimilarListWidget({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +32,9 @@ class SimilarListWidget extends StatelessWidget {
 
 class RecipeCardWidget extends StatefulWidget {
   const RecipeCardWidget({
-    Key? key,
+    super.key,
     required this.items,
-  }) : super(key: key);
+  });
 
   final Similar items;
 

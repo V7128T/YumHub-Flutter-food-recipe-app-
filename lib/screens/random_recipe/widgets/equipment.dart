@@ -3,89 +3,75 @@ import 'package:flutter/material.dart';
 import '../../../models/equipment.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-///Displaying Widget for Equipments List
 class EquipmentsListView extends StatelessWidget {
   final List<Equipment> equipments;
 
   const EquipmentsListView({super.key, required this.equipments});
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 170,
-      child: ListView(
-        shrinkWrap: true,
-        physics: const BouncingScrollPhysics(),
+      height: 220,
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        children: [
-          const SizedBox(
-            width: 26,
-          ),
-          ...equipments.map((equipment) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
+        itemCount: equipments.length,
+        itemBuilder: (context, index) {
+          final equipment = equipments[index];
+          return Padding(
+            padding: EdgeInsets.only(
+              left: index == 0 ? 20 : 10,
+              right: index == equipments.length - 1 ? 20 : 10,
+            ),
+            child: Container(
+              width: 150,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                          offset: Offset(2, 2),
-                          blurRadius: 5,
-                          color: Color.fromRGBO(0, 0, 0, 0.20),
-                        )
-                      ],
-                      image: DecorationImage(
-                        fit: BoxFit.contain,
-                        image: CachedNetworkImageProvider(
-                          "https://spoonacular.com/cdn/equipment_100x100/${equipment.image}",
-                          maxWidth: 556,
-                          maxHeight: 370,
-                        ),
-                      ),
+                  ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(15)),
+                    child: CachedNetworkImage(
+                      imageUrl:
+                          "https://spoonacular.com/cdn/equipment_250x250/${equipment.image}",
+                      height: 120,
+                      width: 150,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: 100,
-                    child: RichText(
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      equipment.name ?? '',
                       textAlign: TextAlign.center,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text:
-                                equipment.name!.characters.first.toUpperCase(),
-                            style: GoogleFonts.chivo(
-                              textStyle: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          TextSpan(
-                            text: equipment.name!.substring(1),
-                            style: GoogleFonts.chivo(
-                              textStyle: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
+                      style: GoogleFonts.chivo(
+                        textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-            );
-          }).toList(),
-        ],
+            ),
+          );
+        },
       ),
     );
   }

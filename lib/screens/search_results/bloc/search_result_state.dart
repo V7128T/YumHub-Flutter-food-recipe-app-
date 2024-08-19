@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:food_recipe_app/models/failure.dart';
 import 'package:food_recipe_app/models/search_results.dart';
@@ -16,12 +15,16 @@ class SearchResultsLoading extends SearchResultsState {}
 
 class SearchResultsSuccess extends SearchResultsState {
   final List<SearchResult> results;
-  SearchResultsSuccess({
+  const SearchResultsSuccess({
     required this.results,
   });
 }
 
-class SearchResultsError extends SearchResultsState {}
+class SearchResultsError extends SearchResultsState {
+  final String errorMessage;
+
+  const SearchResultsError(this.errorMessage);
+}
 
 class HomeFailureState extends SearchResultsState {
   final Failure error;

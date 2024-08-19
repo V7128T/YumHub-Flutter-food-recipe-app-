@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_recipe_app/custom_colors/app_colors.dart';
 import 'package:food_recipe_app/screens/home_screen/bloc/homerecipe_bloc.dart';
 import 'package:food_recipe_app/screens/home_screen/home_screen.dart';
 import 'package:food_recipe_app/screens/more/more.dart';
-import 'package:food_recipe_app/screens/profile_screen/bloc/profile_bloc.dart';
-import 'package:food_recipe_app/screens/profile_screen/bloc/profile_event.dart';
 import 'package:food_recipe_app/screens/profile_screen/profile_page.dart';
 import 'package:food_recipe_app/screens/search_page/cubit/search_page_cubit.dart';
 import 'package:food_recipe_app/screens/search_page/search_page_screen.dart';
@@ -40,55 +39,24 @@ class _BottomNavViewState extends State<BottomNavView> {
         ProfilePage(key: _profileKey),
       ];
 
-  ///Bottom Navigation Bar Childrens
   List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
-      PersistentBottomNavBarItem(
-        inactiveColorPrimary: Colors.grey.shade600,
-        iconSize: 20,
-        icon: const Icon(
-          CupertinoIcons.home,
-        ),
-        activeColorPrimary: Colors.redAccent,
-        title: ("Home"),
-      ),
-      PersistentBottomNavBarItem(
-        inactiveColorPrimary: Colors.grey.shade600,
-        iconSize: 20,
-        icon: const Icon(
-          CupertinoIcons.search,
-        ),
-        activeColorPrimary: Colors.redAccent,
-        title: ("Search"),
-      ),
-      PersistentBottomNavBarItem(
-        inactiveColorPrimary: Colors.grey.shade600,
-        icon: const Icon(
-          Icons.local_grocery_store,
-        ),
-        iconSize: 20,
-        activeColorPrimary: Colors.redAccent,
-        title: ("Ingredient"),
-      ),
-      PersistentBottomNavBarItem(
-        inactiveColorPrimary: Colors.grey.shade600,
-        icon: const Icon(
-          Icons.list,
-        ),
-        iconSize: 20,
-        activeColorPrimary: Colors.redAccent,
-        title: ("More"),
-      ),
-      PersistentBottomNavBarItem(
-        inactiveColorPrimary: Colors.grey.shade600,
-        icon: const Icon(
-          Icons.people,
-        ),
-        iconSize: 20,
-        activeColorPrimary: Colors.redAccent,
-        title: ("Profile"),
-      ),
+      _buildNavBarItem(CupertinoIcons.home, "Home"),
+      _buildNavBarItem(CupertinoIcons.search, "Search"),
+      _buildNavBarItem(Icons.local_grocery_store, "Ingredient"),
+      _buildNavBarItem(Icons.list, "More"),
+      _buildNavBarItem(Icons.people, "Profile"),
     ];
+  }
+
+  PersistentBottomNavBarItem _buildNavBarItem(IconData icon, String title) {
+    return PersistentBottomNavBarItem(
+      icon: Icon(icon),
+      title: title,
+      activeColorPrimary: Theme.of(context).primaryColor,
+      inactiveColorPrimary: Colors.grey.shade600,
+      iconSize: 24,
+    );
   }
 
   void _handleTabChange() {
@@ -125,25 +93,35 @@ class _BottomNavViewState extends State<BottomNavView> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: PersistentTabView(
-        this.context,
-        controller: _controller,
-        screens: _widgetOptions,
-        items: _navBarsItems(),
-        confineInSafeArea: true,
-        backgroundColor: Colors.white,
-        handleAndroidBackButtonPress: true,
-        resizeToAvoidBottomInset: true,
-        hideNavigationBarWhenKeyboardShows: true,
-        popAllScreensOnTapOfSelectedTab: true,
-        navBarStyle: NavBarStyle.style6,
-        screenTransitionAnimation: const ScreenTransitionAnimation(
-          // Screen transition animation on change of selected tab.
-          animateTabTransition: true,
-          curve: Curves.ease,
-          duration: Duration(milliseconds: 200),
-        ),
+        child: PersistentTabView(
+      context,
+      controller: _controller,
+      screens: _widgetOptions,
+      items: _navBarsItems(),
+      confineInSafeArea: true,
+      backgroundColor: AppColors.customPrimary,
+      handleAndroidBackButtonPress: true,
+      resizeToAvoidBottomInset: true,
+      hideNavigationBarWhenKeyboardShows: true,
+      decoration: NavBarDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        colorBehindNavBar: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-    );
+      popAllScreensOnTapOfSelectedTab: true,
+      navBarStyle: NavBarStyle.style6,
+      screenTransitionAnimation: const ScreenTransitionAnimation(
+        animateTabTransition: true,
+        curve: Curves.ease,
+        duration: Duration(milliseconds: 200),
+      ),
+    ));
   }
 }

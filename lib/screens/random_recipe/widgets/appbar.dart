@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:food_recipe_app/models/recipe.dart';
 import 'package:food_recipe_app/screens/random_recipe/widgets/favourite_button.dart';
-
-import '../../../animation/animation.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MySliverAppBar extends SliverPersistentHeaderDelegate {
@@ -26,78 +24,74 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
         // overflow: Overflow.visible,
         children: [
           Positioned(
-              child: Container(
-            color: Colors.white,
-            child: Opacity(
-              opacity: (1 - shrinkOffset / expandedHeight),
-              child: Stack(
-                children: [
-                  const SizedBox(
-                    height: 300,
-                  ),
-                  Positioned(
-                    child: CachedNetworkImage(
+            child: Container(
+              color: Colors.white,
+              child: Opacity(
+                opacity: (1 - shrinkOffset / expandedHeight),
+                child: Stack(
+                  children: [
+                    CachedNetworkImage(
                       imageUrl: info.image!,
-                      height: 270,
+                      height: 300,
                       width: double.infinity,
                       fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                     ),
-                  ),
-                ],
+                    Container(
+                      height: 300,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7)
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          )),
+          ),
           AppBarWidget(
             expandedHeight: expandedHeight,
             shrinkOffset: shrinkOffset,
             info: info,
           ),
           Positioned(
-            bottom: 0,
-            width: MediaQuery.of(context).size.width,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              child: Opacity(
-                opacity: (1 - shrinkOffset / expandedHeight),
-                child: DelayedDisplay(
-                  delay: const Duration(microseconds: 600),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
+            bottom: 20,
+            left: 20,
+            right: 20,
+            child: Opacity(
+              opacity: (1 - shrinkOffset / expandedHeight),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 20),
+                        const SizedBox(width: 4),
+                        Text(
+                          "${info.spoonacularScore?.toStringAsFixed(1)}",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        decoration: BoxDecoration(
-                          boxShadow: kElevationToShadow[1],
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              "${info.spoonacularScore?.toStringAsFixed(0)}",
-                              style: GoogleFonts.chivo(
-                                textStyle: const TextStyle(
-                                  fontSize: 15.0,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Icon(
-                              Icons.star_outlined,
-                              color: Colors.yellow,
-                            )
-                          ],
-                        ),
-                      ),
-                      FavoriteButton(info: info)
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  FavoriteButton(info: info),
+                ],
               ),
             ),
           ),

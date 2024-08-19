@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,9 +70,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       if (user != null) {
         final Reference storageRef = FirebaseStorage.instance
             .ref()
-            .child('profile_pictures/${user.uid}');
+            .child('profile_pictures/${user.uid}/profile.jpg');
+
         await storageRef.putFile(File(event.imagePath));
         final String downloadUrl = await storageRef.getDownloadURL();
+
         await _firestore
             .collection('users')
             .doc(user.uid)
@@ -82,14 +83,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         final DocumentSnapshot userSnapshot =
             await _firestore.collection('users').doc(user.uid).get();
         final userData = userSnapshot.data() as Map<String, dynamic>?;
+
         if (userData != null) {
           final userName = userData['name'] as String?;
+          final recipesCount = userData['recipes_count'] as int? ?? 0;
+          final likesCount = userData['likes_count'] as int? ?? 0;
 
           emit(ProfileLoaded(
             userName: userName ?? '',
             profilePictureUrl: downloadUrl,
-            recipesCount: 10,
-            likesCount: 20,
+            recipesCount: recipesCount,
+            likesCount: likesCount,
           ));
         } else {
           emit(ProfileError('User data not found'));
@@ -97,6 +101,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       } else {
         emit(ProfileError('User not signed in'));
       }
+    } on FirebaseException catch (e) {
+      emit(ProfileError('Firebase error: ${e.message}'));
     } catch (e) {
       emit(ProfileError('Failed to update profile picture: $e'));
     }

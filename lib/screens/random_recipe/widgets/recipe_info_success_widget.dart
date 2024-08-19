@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:food_recipe_app/models/extended_ingredient.dart';
+import 'package:food_recipe_app/models/ingredient.dart';
 import 'package:food_recipe_app/models/recipe.dart';
+import 'package:food_recipe_app/models/step.dart' as recipe_step;
 import 'package:food_recipe_app/screens/random_recipe/widgets/equipment.dart';
 import 'package:food_recipe_app/screens/random_recipe/widgets/nutrients.dart';
-import '../../../animation/animation.dart';
+import 'package:food_recipe_app/screens/utils.dart';
 import 'package:food_recipe_app/models/user_ingredient_list.dart';
 import 'package:provider/provider.dart';
 import '../../../models/equipment.dart';
@@ -138,14 +140,14 @@ class _AddAllIngredientsButtonState extends State<AddAllIngredientsButton>
   }
 }
 
-class RacipeInfoWidget extends StatefulWidget {
+class RecipeInfoWidget extends StatefulWidget {
   final Recipe info;
   final List<Similar> similarlist;
   final List<Equipment> equipment;
   final Nutrient nutrient;
   final String recipeId;
 
-  const RacipeInfoWidget({
+  const RecipeInfoWidget({
     super.key,
     required this.info,
     required this.similarlist,
@@ -155,10 +157,10 @@ class RacipeInfoWidget extends StatefulWidget {
   });
 
   @override
-  State<RacipeInfoWidget> createState() => _RacipeInfoWidgetState();
+  State<RecipeInfoWidget> createState() => _RecipeInfoWidgetState();
 }
 
-class _RacipeInfoWidgetState extends State<RacipeInfoWidget> {
+class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
   final GlobalKey<_AddAllIngredientsButtonState> _addIngredientsButtonKey =
       GlobalKey<_AddAllIngredientsButtonState>();
 
@@ -168,446 +170,354 @@ class _RacipeInfoWidgetState extends State<RacipeInfoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Stack(
+    final User? user = FirebaseAuth.instance.currentUser;
+    final bool isAnonymous = user?.isAnonymous ?? true;
+
+    return Scaffold(
+      body: Stack(
         children: [
-          GestureDetector(
-            onTap: _handleTapOutside,
-            child: CustomScrollView(
-              slivers: [
-                SliverPersistentHeader(
-                  delegate:
-                      MySliverAppBar(expandedHeight: 300, info: widget.info),
-                  pinned: true,
-                ),
-                SliverToBoxAdapter(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      DelayedDisplay(
-                        delay: const Duration(microseconds: 600),
-                        child: Container(
-                          padding: const EdgeInsets.all(26.0),
-                          child: Text(
-                            widget.info.title!,
-                            style: GoogleFonts.chivo(
-                              textStyle: const TextStyle(
-                                fontSize: 27.0,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 26.0, vertical: 10),
-                        child: DelayedDisplay(
-                          delay: const Duration(microseconds: 700),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: const [
-                                BoxShadow(
-                                  offset: Offset(-2, -2),
-                                  blurRadius: 12,
-                                  color: Color.fromRGBO(0, 0, 0, 0.05),
-                                ),
-                                BoxShadow(
-                                  offset: Offset(2, 2),
-                                  blurRadius: 5,
-                                  color: Color.fromRGBO(0, 0, 0, 0.10),
-                                )
-                              ],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  flex: 1,
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${widget.info.readyInMinutes} Min",
-                                        style: GoogleFonts.chivo(
-                                          textStyle: const TextStyle(
-                                            fontSize: 20.0,
-                                            color: Colors.orange,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        "Prep. time",
-                                        style: GoogleFonts.chivo(
-                                          textStyle: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  height: 30,
-                                  width: 2,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                Flexible(
-                                  flex: 1,
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        widget.info.servings.toString(),
-                                        style: GoogleFonts.chivo(
-                                          textStyle: const TextStyle(
-                                            fontSize: 20.0,
-                                            color: Colors.orange,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        "Servings",
-                                        style: GoogleFonts.chivo(
-                                          textStyle: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  height: 30,
-                                  width: 2,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                Flexible(
-                                  flex: 1,
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        '\$${widget.info.pricePerServing}',
-                                        style: GoogleFonts.chivo(
-                                          textStyle: const TextStyle(
-                                            fontSize: 20.0,
-                                            color: Colors.orange,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        "Price/Servings",
-                                        style: GoogleFonts.chivo(
-                                          textStyle: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(26.0),
-                        child: DelayedDisplay(
-                          delay: const Duration(microseconds: 700),
-                          child: Text(
-                            "Ingredients",
-                            style: GoogleFonts.workSans(
-                              textStyle: const TextStyle(
-                                fontSize: 20.0,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (widget.info.extendedIngredients!.isNotEmpty)
-                        DelayedDisplay(
-                          delay: const Duration(microseconds: 600),
-                          child: IngredientsWidget(
-                            recipe: widget.info,
-                          ),
-                        ),
-                      if (widget.info.analyzedInstructions != null &&
-                          widget.info.analyzedInstructions!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(26.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Instructions",
-                                style: GoogleFonts.workSans(
-                                  textStyle: const TextStyle(
-                                    fontSize: 20.0,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              ...widget.info.analyzedInstructions!
-                                  .asMap()
-                                  .entries
-                                  .map((entry) {
-                                final instruction = entry.value;
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (instruction.name != null &&
-                                        instruction.name!.isNotEmpty)
-                                      Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.all(10),
-                                        color: Colors.grey[200],
-                                        child: Text(
-                                          instruction.name!,
-                                          style: GoogleFonts.chivo(
-                                            textStyle: const TextStyle(
-                                              fontSize: 17.0,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ...instruction.steps!
-                                        .asMap()
-                                        .entries
-                                        .map((stepEntry) {
-                                      final stepIndex = stepEntry.key;
-                                      final step = stepEntry.value;
-                                      return Container(
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 10),
-                                        padding: const EdgeInsets.all(15),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.1),
-                                              blurRadius: 5,
-                                              offset: const Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width: 30,
-                                                  height: 30,
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    color: Colors.orange,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  alignment: Alignment.center,
-                                                  child: Text(
-                                                    (stepIndex + 1).toString(),
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Expanded(
-                                                  child: RichText(
-                                                    textAlign:
-                                                        TextAlign.justify,
-                                                    text: TextSpan(
-                                                      text: step.step,
-                                                      style: GoogleFonts.chivo(
-                                                        textStyle:
-                                                            const TextStyle(
-                                                          fontSize: 14.0,
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            if (step.ingredients != null &&
-                                                step.ingredients!.isNotEmpty)
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const SizedBox(height: 8),
-                                                  const Text(
-                                                    "🥕 Ingredients:",
-                                                    style: TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.grey,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  ...step.ingredients!
-                                                      .map((ingredient) {
-                                                    return Text(
-                                                      "- ${ingredient.name}",
-                                                      style: const TextStyle(
-                                                        fontSize: 14.0,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                ],
-                                              ),
-                                            if (step.equipment != null &&
-                                                step.equipment!.isNotEmpty)
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const SizedBox(height: 8),
-                                                  const Text(
-                                                    "🍳 Utensils:",
-                                                    style: TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.grey,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  ...step.equipment!
-                                                      .map((equipment) {
-                                                    return Text(
-                                                      "- ${equipment.name}",
-                                                      style: const TextStyle(
-                                                        fontSize: 14.0,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                ],
-                                              ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ],
-                                );
-                              }).toList(),
-                            ],
-                          ),
-                        ),
-                      if (widget.equipment.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(26.0),
-                          child: Text(
-                            "Utensils",
-                            style: GoogleFonts.workSans(
-                              textStyle: const TextStyle(
-                                fontSize: 20.0,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (widget.equipment.isNotEmpty)
-                        EquipmentsListView(
-                          equipments: widget.equipment,
-                        ),
-                      if (widget.info.summary != null)
-                        Padding(
-                          padding: const EdgeInsets.all(26.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Quick summary",
-                                style: GoogleFonts.workSans(
-                                  textStyle: const TextStyle(
-                                    fontSize: 20.0,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      NutrientsWidgets(
-                        nutrient: widget.nutrient,
-                      ),
-                      NutrientsbadWidget(
-                        nutrient: widget.nutrient,
-                      ),
-                      NutrientsgoodWidget(
-                        nutrient: widget.nutrient,
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      if (widget.similarlist.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30.0, vertical: 26),
-                          child: Text(
-                            "Similar items",
-                            style: GoogleFonts.chivo(
-                              textStyle: const TextStyle(
-                                fontSize: 20.0,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (widget.similarlist.isNotEmpty)
-                        SimilarListWidget(items: widget.similarlist),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                    ],
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.orange[50]!, Colors.orange[100]!],
+              ),
+            ),
+            child: GestureDetector(
+              onTap: _handleTapOutside,
+              child: CustomScrollView(
+                slivers: [
+                  SliverPersistentHeader(
+                    delegate:
+                        MySliverAppBar(expandedHeight: 300, info: widget.info),
+                    pinned: true,
                   ),
-                )
-              ],
+                  SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildRecipeTitle(),
+                        _buildRecipeInfo(),
+                        _buildIngredients(),
+                        _buildInstructions(),
+                        _buildUtensils(),
+                        _buildNutrients(),
+                        _buildSimilarItems(),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          Positioned(
-            bottom: 25,
-            right: 35,
-            child: AddAllIngredientsButton(
+          _buildAddIngredientsButton(isAnonymous),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecipeTitle() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Text(
+        widget.info.title!,
+        style: GoogleFonts.chivo(
+          textStyle: TextStyle(
+            fontSize: 28.0,
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecipeInfo() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildInfoItem("${widget.info.readyInMinutes} Min", "Prep. time"),
+            _buildInfoDivider(),
+            _buildInfoItem(widget.info.servings.toString(), "Servings"),
+            _buildInfoDivider(),
+            _buildInfoItem('\$${widget.info.pricePerServing}', "Price/Serving"),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(String value, String label) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: GoogleFonts.chivo(
+              textStyle: TextStyle(
+                fontSize: 18.0,
+                color: Colors.orange[800],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Text(
+            label,
+            style: GoogleFonts.chivo(
+              textStyle: const TextStyle(
+                fontSize: 12.0,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoDivider() {
+    return Container(
+      height: 30,
+      width: 1,
+      color: Colors.orange[200],
+    );
+  }
+
+  Widget _buildIngredients() {
+    return _buildSection(
+      "Ingredients",
+      widget.info.extendedIngredients!.isNotEmpty
+          ? IngredientsWidget(recipe: widget.info)
+          : const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildInstructions() {
+    if (widget.info.analyzedInstructions == null ||
+        widget.info.analyzedInstructions!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return _buildSection(
+      "Instructions",
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: widget.info.analyzedInstructions!
+            .expand((instruction) => [
+                  if (instruction.name != null && instruction.name!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        instruction.name!,
+                        style: GoogleFonts.chivo(
+                          textStyle: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.orange[800],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ...instruction.steps!
+                      .map((step) => _buildInstructionStep(step)),
+                ])
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildInstructionStep(recipe_step.Step step) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.orange.withOpacity(0.1),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: Colors.orange[800],
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  (step.number ?? 0).toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  step.step ?? '',
+                  style: GoogleFonts.chivo(
+                    textStyle: const TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (step.ingredients != null && step.ingredients!.isNotEmpty)
+            _buildStepDetails(
+                "🥕 Ingredients:", _extractIngredientNames(step.ingredients!)),
+          if (step.equipment != null && step.equipment!.isNotEmpty)
+            _buildStepDetails(
+                "🍳 Utensils:", _extractEquipmentNames(step.equipment!)),
+        ],
+      ),
+    );
+  }
+
+  List<String> _extractIngredientNames(List<Ingredient> ingredients) {
+    return ingredients.map((ingredient) => ingredient.name ?? '').toList();
+  }
+
+  List<String> _extractEquipmentNames(List<Equipment> equipments) {
+    return equipments.map((equipment) => equipment.name ?? '').toList();
+  }
+
+  Widget _buildStepDetails(String title, List<String> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        Text(
+          title,
+          style: GoogleFonts.chivo(
+            textStyle: TextStyle(
+              fontSize: 14.0,
+              color: Colors.orange[800],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ...items.map((item) => Text(
+              "- $item",
+              style: GoogleFonts.chivo(
+                textStyle: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.grey,
+                ),
+              ),
+            )),
+      ],
+    );
+  }
+
+  Widget _buildUtensils() {
+    return widget.equipment.isNotEmpty
+        ? _buildSection(
+            "Utensils",
+            EquipmentsListView(equipments: widget.equipment),
+          )
+        : const SizedBox.shrink();
+  }
+
+  Widget _buildNutrients() {
+    return _buildSection(
+      "Nutrition Information",
+      Column(
+        children: [
+          CompactNutritionWidget(nutrient: widget.nutrient),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimilarItems() {
+    return widget.similarlist.isNotEmpty
+        ? _buildSection(
+            "Similar Recipes",
+            SimilarListWidget(items: widget.similarlist),
+          )
+        : const SizedBox.shrink();
+  }
+
+  Widget _buildSection(String title, Widget content) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.chivo(
+              textStyle: TextStyle(
+                fontSize: 22.0,
+                color: Colors.orange[800],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          content,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddIngredientsButton(bool isAnonymous) {
+    return Positioned(
+      bottom: 25,
+      right: 35,
+      child: isAnonymous
+          ? ElevatedButton(
+              onPressed: () => showGuestOverlay(context),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.orange[800],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(40.0),
+                ),
+                padding: const EdgeInsets.all(13.0),
+                minimumSize: const Size(70, 70),
+              ),
+              child: const Icon(Icons.add, size: 30.0),
+            )
+          : AddAllIngredientsButton(
               key: _addIngredientsButtonKey,
               ingredients: widget.info.extendedIngredients,
               recipeId: widget.recipeId,
               recipeTitle: widget.info.title ?? 'Unknown Recipe',
               recipeImage: widget.info.image,
             ),
-          ),
-        ],
-      ),
     );
   }
 }

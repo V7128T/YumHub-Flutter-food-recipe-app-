@@ -20,7 +20,11 @@ class RandomRecipeSuccesState extends RandomRecipeState {
   });
 }
 
-class RandomRecipeErrorState extends RandomRecipeState {}
+class RandomRecipeErrorState extends RandomRecipeState {
+  final String errorMessage;
+
+  RandomRecipeErrorState(this.errorMessage);
+}
 
 class FailureState extends RandomRecipeState {
   final Failure error;

@@ -11,8 +11,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:food_recipe_app/screens/authentication_screen/email_signup_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load profile data when the page is initialized
+    context.read<ProfileBloc>().add(LoadProfile());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,34 +32,114 @@ class ProfilePage extends StatelessWidget {
     final bool isAnonymous = user?.isAnonymous ?? true;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Profile',
-          style: GoogleFonts.chivo(
-            textStyle: const TextStyle(
-              fontSize: 25.0,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
+      body: isAnonymous
+          ? _buildGuestView(context)
+          : BlocListener<ProfileBloc, ProfileState>(
+              listener: (context, state) {
+                if (state is ProfileError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(state.message),
+                        duration: const Duration(seconds: 5)),
+                  );
+                }
+              },
+              child: BlocBuilder<ProfileBloc, ProfileState>(
+                builder: (context, state) {
+                  if (state is ProfileLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is ProfileLoaded) {
+                    return _buildAuthenticatedView(context, state);
+                  } else if (state is ProfileError) {
+                    return Center(child: Text(state.message));
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+            ),
+    );
+  }
+
+  Widget _buildGuestView(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                  'assets/guest_background.jpg'), // Add a background image
+              fit: BoxFit.cover,
             ),
           ),
         ),
-        actions: [
-          if (!isAnonymous)
+        Container(
+          color: Colors.black.withOpacity(0.6),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.account_circle,
+                    size: 100, color: Colors.white),
+                const SizedBox(height: 20),
+                Text(
+                  'You are logged in as a guest.',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => showGuestOverlay(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                  ),
+                  child: Text(
+                    'Create an Account',
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAuthenticatedView(BuildContext context, ProfileLoaded state) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 200.0,
+          floating: false,
+          pinned: true,
+          flexibleSpace: FlexibleSpaceBar(
+            background: Image.network(
+              state.profilePictureUrl.isNotEmpty
+                  ? state.profilePictureUrl
+                  : 'https://images.unsplash.com/photo-1420624226293-19b680e38dd6?q=80&w=2608&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+              fit: BoxFit.cover,
+            ),
+          ),
+          actions: [
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () {
                 BlocProvider.of<ProfileBloc>(context, listen: false)
                     .add(SignOut());
-                Builder(
-                  builder: (context) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('You have been signed out.'),
-                        duration: Duration(seconds: 5),
-                      ),
-                    );
-                    return const SizedBox.shrink();
-                  },
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('You have been signed out.'),
+                    duration: Duration(seconds: 5),
+                  ),
                 );
                 Future.delayed(
                   const Duration(seconds: 2),
@@ -61,66 +153,179 @@ class ProfilePage extends StatelessWidget {
                 );
               },
             ),
+          ],
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildProfileHeader(
+                    context, state.userName, state.profilePictureUrl),
+                const SizedBox(height: 20),
+                _buildStatisticsCard(state.recipesCount, state.likesCount),
+                const SizedBox(height: 20),
+                _buildAdditionalInfo(),
+                const SizedBox(height: 20),
+                _buildRecentActivity(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileHeader(
+      BuildContext context, String userName, String profilePictureUrl) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () => _pickProfilePicture(context),
+          child: CircleAvatar(
+            radius: 50,
+            backgroundImage: profilePictureUrl.isNotEmpty
+                ? NetworkImage(profilePictureUrl)
+                : null,
+            child: profilePictureUrl.isEmpty
+                ? Text(userName.isNotEmpty ? userName[0].toUpperCase() : '',
+                    style: GoogleFonts.poppins(
+                        fontSize: 32, fontWeight: FontWeight.bold))
+                : null,
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(userName,
+                  style: GoogleFonts.poppins(
+                      fontSize: 24, fontWeight: FontWeight.bold)),
+              Text('Food Enthusiast',
+                  style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey)),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _pickProfilePicture(context),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                ),
+                child: const Text('Change Profile Picture'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatisticsCard(int recipesCount, int likesCount) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildStatItem(Icons.restaurant, 'Recipes', recipesCount),
+            _buildStatItem(Icons.favorite, 'Likes', likesCount),
+            _buildStatItem(Icons.star, 'Rating',
+                4.5), // You can add more statistics as needed
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(IconData icon, String label, dynamic value) {
+    return Column(
+      children: [
+        Icon(icon, size: 30, color: Colors.orange),
+        const SizedBox(height: 8),
+        Text(label,
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey)),
+        Text(value.toString(),
+            style:
+                GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildAdditionalInfo() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('About Me',
+                style: GoogleFonts.poppins(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Text(
+                'Passionate about cooking and trying new recipes. Love to share my culinary adventures!',
+                style: GoogleFonts.poppins(fontSize: 14)),
+            const SizedBox(height: 15),
+            Text('Favorite Cuisine: Italian',
+                style: GoogleFonts.poppins(fontSize: 14)),
+            Text('Cooking Level: Intermediate',
+                style: GoogleFonts.poppins(fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentActivity() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Recent Activity',
+                style: GoogleFonts.poppins(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            _buildActivityItem(
+                'Added a new recipe: Spaghetti Carbonara', '2 days ago'),
+            _buildActivityItem('Liked Margherita Pizza recipe', '4 days ago'),
+            _buildActivityItem(
+                'Commented on Chocolate Cake recipe', '1 week ago'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivityItem(String activity, String time) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.circle, size: 12, color: Colors.orange),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(activity, style: GoogleFonts.poppins(fontSize: 14)),
+                Text(time,
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
+          ),
         ],
       ),
-      body: isAnonymous
-          ? Stack(
-              children: [
-                Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'You are logged in as a guest.',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            showGuestOverlay(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                          ),
-                          child: const Text('Create an Account'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : BlocBuilder<ProfileBloc, ProfileState>(
-              builder: (context, state) {
-                if (state is ProfileLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is ProfileLoaded) {
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildProfileHeader(
-                            context, state.userName, state.profilePictureUrl),
-                        _buildProfileSections(
-                          state.recipesCount,
-                          state.likesCount,
-                        ),
-                      ],
-                    ),
-                  );
-                } else if (state is ProfileError) {
-                  return Center(child: Text(state.message));
-                } else {
-                  return Container();
-                }
-              },
-            ),
     );
   }
 
@@ -194,36 +399,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader(
-      context, String userName, String profilePictureUrl) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () => _pickProfilePicture(context),
-            child: CircleAvatar(
-              backgroundImage: profilePictureUrl.isNotEmpty
-                  ? NetworkImage(profilePictureUrl)
-                  : null,
-              radius: 48,
-              child: profilePictureUrl.isEmpty
-                  ? Text(userName.isNotEmpty ? userName[0].toUpperCase() : '')
-                  : null,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            userName,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text('Community member'),
-        ],
-      ),
-    );
-  }
-
   void _pickProfilePicture(BuildContext context) async {
     final ImagePicker _picker = ImagePicker();
 
@@ -238,33 +413,9 @@ class ProfilePage extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to pick image: $e'),
+          duration: const Duration(seconds: 5),
         ),
       );
     }
-  }
-
-  Widget _buildProfileSections(
-    int recipesCount,
-    int likesCount,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildProfileSection(Icons.restaurant, 'Recipes', recipesCount),
-        _buildProfileSection(Icons.favorite, 'Likes', likesCount),
-      ],
-    );
-  }
-
-  Widget _buildProfileSection(IconData icon, String title, int count) {
-    return Column(
-      children: [
-        Icon(icon, size: 48),
-        const SizedBox(height: 8),
-        Text(title),
-        const SizedBox(height: 4),
-        Text(count.toString()),
-      ],
-    );
   }
 }

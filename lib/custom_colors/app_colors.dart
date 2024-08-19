@@ -6,5 +6,6 @@ class AppColors {
   static const Color defaultBackground = Color(0xffffddb5);
   static const Color darkModeBackground = Color(0xff121212);
   static const Color defaultWhite = Color(0xfff5f5f5);
+  static const Color customPrimary = Color(0xffFFD8A8);
 // Define more colors here
 }

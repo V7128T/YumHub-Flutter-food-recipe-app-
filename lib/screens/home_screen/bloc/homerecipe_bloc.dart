@@ -38,7 +38,7 @@ class HomeRecipesBloc extends Bloc<HomeRecipesEvent, HomeRecipesState> {
           emit(HomeFailureState(error: e));
         } catch (e) {
           print(e.toString());
-          emit(HomeRecipesError());
+          emit(HomeRecipesError(e.toString()));
         }
       }
     });

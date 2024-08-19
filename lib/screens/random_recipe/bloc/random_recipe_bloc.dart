@@ -18,6 +18,7 @@ class RandomRecipeBloc extends Bloc<RandomRecipeEvent, RandomRecipeState> {
         try {
           emit(RandomRecipeLoadState());
           final data = await repo.getRecipe();
+
           ///emitting Random Recipe Success to UI
           emit(
             RandomRecipeSuccesState(
@@ -31,7 +32,7 @@ class RandomRecipeBloc extends Bloc<RandomRecipeEvent, RandomRecipeState> {
           emit(FailureState(error: e));
         } catch (e) {
           print(e.toString());
-          emit(RandomRecipeErrorState());
+          emit(RandomRecipeErrorState(e.toString()));
         }
       }
     });

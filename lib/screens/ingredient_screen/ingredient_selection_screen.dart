@@ -6,7 +6,6 @@ import 'package:food_recipe_app/models/user_ingredient_list.dart';
 import 'package:food_recipe_app/repo/get_recipe_info.dart';
 import 'package:food_recipe_app/models/recipe.dart';
 import 'package:food_recipe_app/services/conversion_service.dart';
-
 import '../profile_screen/bloc/profile_bloc.dart';
 import '../profile_screen/bloc/profile_event.dart';
 

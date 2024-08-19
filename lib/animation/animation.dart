@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 class DelayedDisplay extends StatefulWidget {
@@ -12,6 +11,7 @@ class DelayedDisplay extends StatefulWidget {
   final bool fadeIn;
 
   const DelayedDisplay({
+    super.key,
     required this.child,
     this.delay = Duration.zero,
     this.fadingDuration = const Duration(milliseconds: 800),

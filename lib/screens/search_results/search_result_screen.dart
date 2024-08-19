@@ -10,6 +10,8 @@ import 'package:food_recipe_app/screens/search_results/bloc/search_result_state.
 import 'package:food_recipe_app/widgets/loading_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../custom_dialogs/error_widget.dart';
+
 class SearchResults extends StatefulWidget {
   final String id;
   const SearchResults({super.key, required this.id});
@@ -20,6 +22,7 @@ class SearchResults extends StatefulWidget {
 
 class _SearchResultsState extends State<SearchResults> {
   late final SearchResultsBloc bloc;
+
   @override
   void initState() {
     bloc = BlocProvider.of<SearchResultsBloc>(context);
@@ -29,151 +32,164 @@ class _SearchResultsState extends State<SearchResults> {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaler: const TextScaler.linear(1.0)),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.black),
-          backgroundColor: Colors.white,
-          title: Text(
-            "YumHub",
-            style: GoogleFonts.chivo(
-              textStyle: const TextStyle(
-                fontSize: 25.0,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.orange[800]),
+        title: Text(
+          "YumHub",
+          style: GoogleFonts.chivo(
+            textStyle: TextStyle(
+              fontSize: 28.0,
+              color: Colors.orange[800],
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        body: BlocBuilder<SearchResultsBloc, SearchResultsState>(
-          builder: (context, state) {
-            if (state is SearchResultsLoading) {
-              return const Center(child: LoadingWidget());
-            } else if (state is SearchResultsSuccess) {
-              ///Displaying On Success result
-              return SafeArea(
-                  child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: GridView(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 13 / 16,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.orange[50]!, Colors.orange[100]!],
+          ),
+        ),
+        child: SafeArea(
+          child: BlocBuilder<SearchResultsBloc, SearchResultsState>(
+            builder: (context, state) {
+              if (state is SearchResultsLoading) {
+                return const Center(child: LoadingWidget());
+              } else if (state is SearchResultsSuccess) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Search Results for "${widget.id}"',
+                        style: GoogleFonts.chivo(
+                          textStyle: TextStyle(
+                            fontSize: 20.0,
+                            color: Colors.orange[800],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                          itemCount: state.results.length,
+                          itemBuilder: (context, index) {
+                            return SearchResultItem(
+                                result: state.results[index]);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics()),
-                  children: [
-                    ...state.results.map((result) {
-                      return SearchResultItem(
-                        result: result,
-                      );
-                    }).toList()
-                  ],
-                ),
-              ));
-            } else if (state is SearchResultsError) {
-              //On Error
-              return const Center(
-                child: Text("An error occured... Please try again later"),
-              );
-            } else {
-              return const Center(
-                child: Text("Nothing happens"),
-              );
-            }
-          },
+                );
+              } else if (state is SearchResultsError) {
+                return ErrorDisplay(
+                  errorMessage: state.errorMessage
+                          .contains('API call limit reached')
+                      ? "You've reached the daily limit of 150 API calls. Please try again tomorrow or upgrade your plan."
+                      : state.errorMessage,
+                );
+              } else {
+                return const Center(
+                  child: Text("Unexpected state. Please restart the app."),
+                );
+              }
+            },
+          ),
         ),
       ),
     );
   }
 }
 
-class SearchResultItem extends StatefulWidget {
+class SearchResultItem extends StatelessWidget {
   final SearchResult result;
+
   const SearchResultItem({
     super.key,
     required this.result,
   });
 
   @override
-  _SearchResultresulttate createState() => _SearchResultresulttate();
-}
-
-class _SearchResultresulttate extends State<SearchResultItem> {
-  @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => BlocProvider(
               create: (context) => RecipeInfoBloc(),
-              child: RecipeInfo(
-                id: widget.result.id,
-              ),
+              child: RecipeInfo(id: result.id),
             ),
           ),
         );
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                offset: Offset(-2, -2),
-                blurRadius: 12,
-                color: Color.fromRGBO(0, 0, 0, 0.05),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
               ),
-              BoxShadow(
-                offset: Offset(2, 2),
-                blurRadius: 5,
-                color: Color.fromRGBO(0, 0, 0, 0.10),
-              )
-            ],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10)),
-                child: Container(
-                  height: 120,
-                  foregroundDecoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                  width: double.infinity,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.result.image,
-                    fit: BoxFit.cover,
+              child: CachedNetworkImage(
+                imageUrl: result.image,
+                height: 150,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Colors.orange[100],
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.orange[100],
+                  child: const Icon(Icons.error, color: Colors.white),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                result.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.chivo(
+                  textStyle: const TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                padding: const EdgeInsets.all(9),
-                child: Text(
-                  widget.result.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

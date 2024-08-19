@@ -9,6 +9,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
+import 'package:printing/printing.dart';
 
 class ShoppingListScreen extends StatefulWidget {
   const ShoppingListScreen({super.key});
@@ -262,48 +263,124 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   Future<void> _showReceipt(
       List<Map<String, dynamic>> items, double totalAmount) async {
     final pdf = pw.Document();
+    final font = await PdfGoogleFonts.nunitoRegular();
+    final boldFont = await PdfGoogleFonts.nunitoBold();
 
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text('Receipt',
-                  style: pw.TextStyle(
-                      fontSize: 24, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 20),
-              pw.Table(
-                border: pw.TableBorder.all(),
-                children: [
-                  pw.TableRow(
-                    children: [
-                      pw.Text('Item',
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text('Quantity',
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text('Price',
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text('Total',
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ],
+          return pw.Container(
+            padding: const pw.EdgeInsets.all(20),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.black, width: 1),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Center(
+                  child: pw.Text(
+                    'YumHub',
+                    style: pw.TextStyle(font: boldFont, fontSize: 24),
                   ),
-                  ...items
-                      .map((item) => pw.TableRow(
-                            children: [
-                              pw.Text(item['name']),
-                              pw.Text(item['quantity'].toString()),
-                              pw.Text('RM ${item['price'].toStringAsFixed(2)}'),
-                              pw.Text('RM ${item['total'].toStringAsFixed(2)}'),
-                            ],
-                          ))
-                      .toList(),
-                ],
-              ),
-              pw.SizedBox(height: 20),
-              pw.Text('Total Amount: RM ${totalAmount.toStringAsFixed(2)}',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-            ],
+                ),
+                pw.SizedBox(height: 10),
+                pw.Center(
+                  child: pw.Text(
+                    'Purchase Receipt',
+                    style: pw.TextStyle(font: boldFont, fontSize: 18),
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+                pw.Divider(thickness: 1),
+                pw.SizedBox(height: 10),
+                pw.Text('Date: ${DateTime.now().toString().split('.')[0]}',
+                    style: pw.TextStyle(font: font)),
+                pw.SizedBox(height: 20),
+                pw.Table(
+                  border: pw.TableBorder.all(color: PdfColors.black),
+                  children: [
+                    pw.TableRow(
+                      decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Text('Item',
+                              style: pw.TextStyle(font: boldFont)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Text('Qty',
+                              style: pw.TextStyle(font: boldFont)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Text('Price',
+                              style: pw.TextStyle(font: boldFont)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Text('Total',
+                              style: pw.TextStyle(font: boldFont)),
+                        ),
+                      ],
+                    ),
+                    ...items
+                        .map((item) => pw.TableRow(
+                              children: [
+                                pw.Padding(
+                                  padding: const pw.EdgeInsets.all(5),
+                                  child: pw.Text(item['name'],
+                                      style: pw.TextStyle(font: font)),
+                                ),
+                                pw.Padding(
+                                  padding: const pw.EdgeInsets.all(5),
+                                  child: pw.Text(item['quantity'].toString(),
+                                      style: pw.TextStyle(font: font)),
+                                ),
+                                pw.Padding(
+                                  padding: const pw.EdgeInsets.all(5),
+                                  child: pw.Text(
+                                      'RM ${item['price'].toStringAsFixed(2)}',
+                                      style: pw.TextStyle(font: font)),
+                                ),
+                                pw.Padding(
+                                  padding: const pw.EdgeInsets.all(5),
+                                  child: pw.Text(
+                                      'RM ${item['total'].toStringAsFixed(2)}',
+                                      style: pw.TextStyle(font: font)),
+                                ),
+                              ],
+                            ))
+                        .toList(),
+                  ],
+                ),
+                pw.SizedBox(height: 20),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Total Amount:',
+                        style: pw.TextStyle(font: boldFont)),
+                    pw.Text('RM ${totalAmount.toStringAsFixed(2)}',
+                        style: pw.TextStyle(font: boldFont)),
+                  ],
+                ),
+                pw.Divider(thickness: 1),
+                pw.SizedBox(height: 20),
+                pw.Center(
+                  child: pw.Text(
+                    'Thank you for your purchase!',
+                    style: pw.TextStyle(font: font, fontSize: 14),
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+                pw.Center(
+                  child: pw.Text(
+                    'Please come again',
+                    style: pw.TextStyle(font: font, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

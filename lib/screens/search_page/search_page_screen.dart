@@ -66,231 +66,266 @@ class _SearchPageState extends State<SearchPage> {
             return MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: const TextScaler.linear(1.0)),
-              child: Scaffold(
-                backgroundColor: Colors.white,
-                body: SafeArea(
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverAppBar(
-                        backgroundColor: Colors.white,
-                        floating: true,
-                        pinned: true,
-                        title: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                decoration: InputDecoration(
-                                  hintText: state.isAdvancedSearchEnabled
-                                      ? "Enter ingredients, separated by commas"
-                                      : "Search Recipes..",
-                                  suffixIcon: IconButton(
-                                    icon: const Icon(Icons.search,
-                                        color: Colors.redAccent),
-                                    onPressed: () {
-                                      if (state.isAdvancedSearchEnabled) {
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.orange[50]!, Colors.orange[100]!],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: SafeArea(
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverAppBar(
+                          backgroundColor: Colors.transparent,
+                          floating: true,
+                          pinned: true,
+                          title: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _searchController,
+                                  decoration: InputDecoration(
+                                    hintText: state.isAdvancedSearchEnabled
+                                        ? "Enter ingredients, separated by commas"
+                                        : "Search Recipes..",
+                                    suffixIcon: IconButton(
+                                      icon: Icon(Icons.search,
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                      onPressed: () {
                                         _searchPageCubit
                                             .textChange(state.searchText);
-                                      } else {
-                                        _searchPageCubit
-                                            .textChange(state.searchText);
-                                      }
-                                    },
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 20),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      width: 2,
-                                      style: BorderStyle.solid,
-                                      color: Theme.of(context).primaryColor,
+                                      },
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      width: 1,
-                                      style: BorderStyle.solid,
-                                      color: Colors.black.withOpacity(.5),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 20),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide: BorderSide.none,
                                     ),
-                                    borderRadius: BorderRadius.circular(15),
+                                    filled: true,
+                                    fillColor: Colors.grey[200],
                                   ),
+                                  onChanged: (value) {
+                                    _searchPageCubit.textChange(value);
+                                  },
+                                  onSubmitted: (v) {
+                                    if (isAnonymous) {
+                                      showGuestOverlay(context);
+                                    } else {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => BlocProvider(
+                                            create: (context) =>
+                                                SearchResultsBloc(),
+                                            child: SearchResults(
+                                              id: v,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
-                                onChanged: (value) {
-                                  _searchPageCubit.textChange(value);
-                                },
-                                onSubmitted: (v) {
-                                  if (isAnonymous) {
-                                    showGuestOverlay(context);
-                                  } else {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => BlocProvider(
-                                          create: (context) =>
-                                              SearchResultsBloc(),
-                                          child: SearchResults(
-                                            id: v,
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.filter_alt,
+                                    color: Theme.of(context).primaryColor),
+                                onPressed: () => _showFilterDrawer(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (state.isAdvancedSearchEnabled)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Wrap(
+                                spacing: 8.0,
+                                children: state.ingredients
+                                    .map((ingredient) => Chip(
+                                          label: Text(ingredient),
+                                          onDeleted: () {
+                                            _searchPageCubit
+                                                .removeIngredient(ingredient);
+                                          },
+                                        ))
+                                    .toList(),
+                              ),
+                            ),
+                          ),
+                        if (isAnonymous)
+                          SliverFillRemaining(
+                            child: Stack(
+                              children: [
+                                SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 25.0, vertical: 20),
+                                        child: Text(
+                                          "Most Recent Searches by People",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
                                           ),
                                         ),
                                       ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.filter_alt,
-                                  color: Colors.redAccent),
-                              onPressed: () => _showFilterDrawer(context),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (state.isAdvancedSearchEnabled)
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Wrap(
-                              spacing: 8.0,
-                              children: state.ingredients
-                                  .map((ingredient) => Chip(
-                                        label: Text(ingredient),
-                                        onDeleted: () {
-                                          _searchPageCubit
-                                              .removeIngredient(ingredient);
-                                        },
-                                      ))
-                                  .toList(),
-                            ),
-                          ),
-                        ),
-                      if (isAnonymous)
-                        SliverFillRemaining(
-                          child: Stack(
-                            children: [
-                              SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 25.0, vertical: 20),
-                                      child: Text(
-                                        "Most Recent Searches by People",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
+                                      const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Wrap(
+                                          alignment: WrapAlignment.start,
+                                          children: [
+                                            ChipWidget("Baking"),
+                                            ChipWidget("Vegetarian"),
+                                            ChipWidget("Sauces"),
+                                            ChipWidget("Meat"),
+                                            ChipWidget("Turkey"),
+                                            ChipWidget("Chicken"),
+                                            ChipWidget("Sausages"),
+                                            ChipWidget("Mince"),
+                                            ChipWidget("Burgers"),
+                                            ChipWidget("Pasta"),
+                                            ChipWidget("Noodles"),
+                                            ChipWidget("Pizza"),
+                                            ChipWidget("Soups"),
+                                          ],
                                         ),
                                       ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Wrap(
-                                        alignment: WrapAlignment.start,
-                                        children: [
-                                          ChipWidget("Baking"),
-                                          ChipWidget("Vegetarian"),
-                                          ChipWidget("Sauces"),
-                                          ChipWidget("Meat"),
-                                          ChipWidget("Turkey"),
-                                          ChipWidget("Chicken"),
-                                          ChipWidget("Sausages"),
-                                          ChipWidget("Mince"),
-                                          ChipWidget("Burgers"),
-                                          ChipWidget("Pasta"),
-                                          ChipWidget("Noodles"),
-                                          ChipWidget("Pizza"),
-                                          ChipWidget("Soups"),
-                                        ],
-                                      ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 25.0, vertical: 10),
-                                      child: Text(
-                                        "Recipes by Categories",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 25.0, vertical: 10),
+                                        child: Text(
+                                          "Recipes by Categories",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const CategoryTile(
-                                        text: "Main course",
+                                      const CategoryTile(
+                                          text: "Main course",
+                                          image:
+                                              "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
+                                      const CategoryTile(
+                                          text: "Side-dish",
+                                          image:
+                                              "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
+                                      const CategoryTile(
+                                          text: "Dessert",
+                                          image:
+                                              "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
+                                      const CategoryTile(
+                                          text: "Appetizer",
+                                          image:
+                                              "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
+                                      const CategoryTile(
+                                        text: "Salad",
                                         image:
-                                            "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
-                                    const CategoryTile(
-                                        text: "Side-dish",
+                                            "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Bread",
                                         image:
-                                            "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
-                                    const CategoryTile(
-                                        text: "Dessert",
+                                            "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Breakfast",
                                         image:
-                                            "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
-                                    const CategoryTile(
-                                        text: "Appetizer",
+                                            "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Soup",
                                         image:
-                                            "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
-                                    const CategoryTile(
-                                      text: "Salad",
-                                      image:
-                                          "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Bread",
-                                      image:
-                                          "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Breakfast",
-                                      image:
-                                          "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Soup",
-                                      image:
-                                          "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Beverage",
-                                      image:
-                                          "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Sauce",
-                                      image:
-                                          "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Marinade",
-                                      image:
-                                          "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Fingerfood",
-                                      image:
-                                          "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Snack",
-                                      image:
-                                          "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                    ),
-                                    const CategoryTile(
-                                      text: "Drink",
-                                      image:
-                                          "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
-                                    ),
-                                    Container(
-                                      color: Colors.black.withOpacity(0.5),
-                                      child: Center(
+                                            "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Beverage",
+                                        image:
+                                            "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Sauce",
+                                        image:
+                                            "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Marinade",
+                                        image:
+                                            "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Fingerfood",
+                                        image:
+                                            "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Snack",
+                                        image:
+                                            "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                      ),
+                                      const CategoryTile(
+                                        text: "Drink",
+                                        image:
+                                            "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
+                                      ),
+                                      Container(
+                                        color: Colors.black.withOpacity(0.5),
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              const Text(
+                                                'You are logged in as a guest.',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10.0),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  showGuestOverlay(context);
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Colors.orange,
+                                                ),
+                                                child: const Text(
+                                                    'Create an Account'),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: Container(
+                                    color: Colors.black.withOpacity(0.7),
+                                    child: Center(
+                                      child: Container(
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                         child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
                                             const Text(
                                               'You are logged in as a guest.',
                                               style: TextStyle(
-                                                color: Colors.white,
+                                                color: Colors.black,
                                                 fontSize: 18.0,
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -310,182 +345,144 @@ class _SearchPageState extends State<SearchPage> {
                                         ),
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                              Positioned.fill(
-                                child: Container(
-                                  color: Colors.black.withOpacity(0.7),
-                                  child: Center(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Text(
-                                            'You are logged in as a guest.',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 10.0),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              showGuestOverlay(context);
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.orange,
-                                            ),
-                                            child:
-                                                const Text('Create an Account'),
-                                          ),
-                                        ],
-                                      ),
+                              ],
+                            ),
+                          )
+                        else if (state.status == Status.success &&
+                            state.searchList.isNotEmpty)
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                return SearchAutoCompleteTile(
+                                    list: state.searchList[index]);
+                              },
+                              childCount: state.searchList.length,
+                            ),
+                          )
+                        else if (state.status == Status.loading)
+                          const SliverFillRemaining(
+                            child: Center(child: LoadingWidget()),
+                          )
+                        else
+                          SliverList(
+                            delegate: SliverChildListDelegate(
+                              [
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 25.0, vertical: 20),
+                                  child: Text(
+                                    "Most Recent Searches by People",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else if (state.status == Status.success &&
-                          state.searchList.isNotEmpty)
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return SearchAutoCompleteTile(
-                                  list: state.searchList[index]);
-                            },
-                            childCount: state.searchList.length,
-                          ),
-                        )
-                      else if (state.status == Status.loading)
-                        const SliverFillRemaining(
-                          child: Center(child: LoadingWidget()),
-                        )
-                      else
-                        SliverList(
-                          delegate: SliverChildListDelegate(
-                            [
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 25.0, vertical: 20),
-                                child: Text(
-                                  "Most Recent Searches by People",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Wrap(
+                                    alignment: WrapAlignment.start,
+                                    children: [
+                                      ChipWidget("Baking"),
+                                      ChipWidget("Vegetarian"),
+                                      ChipWidget("Sauces"),
+                                      ChipWidget("Meat"),
+                                      ChipWidget("Turkey"),
+                                      ChipWidget("Chicken"),
+                                      ChipWidget("Sausages"),
+                                      ChipWidget("Mince"),
+                                      ChipWidget("Burgers"),
+                                      ChipWidget("Pasta"),
+                                      ChipWidget("Noodles"),
+                                      ChipWidget("Pizza"),
+                                      ChipWidget("Soups"),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Wrap(
-                                  alignment: WrapAlignment.start,
-                                  children: [
-                                    ChipWidget("Baking"),
-                                    ChipWidget("Vegetarian"),
-                                    ChipWidget("Sauces"),
-                                    ChipWidget("Meat"),
-                                    ChipWidget("Turkey"),
-                                    ChipWidget("Chicken"),
-                                    ChipWidget("Sausages"),
-                                    ChipWidget("Mince"),
-                                    ChipWidget("Burgers"),
-                                    ChipWidget("Pasta"),
-                                    ChipWidget("Noodles"),
-                                    ChipWidget("Pizza"),
-                                    ChipWidget("Soups"),
-                                  ],
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 25.0, vertical: 10),
-                                child: Text(
-                                  "Recipes by Categories",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 25.0, vertical: 10),
+                                  child: Text(
+                                    "Recipes by Categories",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const CategoryTile(
-                                  text: "Main course",
+                                const CategoryTile(
+                                    text: "Main course",
+                                    image:
+                                        "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
+                                const CategoryTile(
+                                    text: "Side-dish",
+                                    image:
+                                        "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
+                                const CategoryTile(
+                                    text: "Dessert",
+                                    image:
+                                        "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
+                                const CategoryTile(
+                                    text: "Appetizer",
+                                    image:
+                                        "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
+                                const CategoryTile(
+                                  text: "Salad",
                                   image:
-                                      "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
-                              const CategoryTile(
-                                  text: "Side-dish",
+                                      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Bread",
                                   image:
-                                      "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
-                              const CategoryTile(
-                                  text: "Dessert",
+                                      "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Breakfast",
                                   image:
-                                      "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
-                              const CategoryTile(
-                                  text: "Appetizer",
+                                      "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Soup",
                                   image:
-                                      "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
-                              const CategoryTile(
-                                text: "Salad",
-                                image:
-                                    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Bread",
-                                image:
-                                    "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Breakfast",
-                                image:
-                                    "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Soup",
-                                image:
-                                    "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Beverage",
-                                image:
-                                    "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Sauce",
-                                image:
-                                    "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Marinade",
-                                image:
-                                    "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Fingerfood",
-                                image:
-                                    "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Snack",
-                                image:
-                                    "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                              ),
-                              const CategoryTile(
-                                text: "Drink",
-                                image:
-                                    "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
-                              ),
-                            ],
+                                      "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Beverage",
+                                  image:
+                                      "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Sauce",
+                                  image:
+                                      "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Marinade",
+                                  image:
+                                      "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Fingerfood",
+                                  image:
+                                      "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Snack",
+                                  image:
+                                      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+                                ),
+                                const CategoryTile(
+                                  text: "Drink",
+                                  image:
+                                      "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -768,59 +765,64 @@ class CategoryTile extends StatelessWidget {
       child: DelayedDisplay(
         delay: const Duration(microseconds: 600),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          decoration: BoxDecoration(boxShadow: const [
-            BoxShadow(
-              offset: Offset(-2, -2),
-              blurRadius: 12,
-              color: Color.fromRGBO(0, 0, 0, 0.05),
-            ),
-            BoxShadow(
-              offset: Offset(2, 2),
-              blurRadius: 5,
-              color: Color.fromRGBO(0, 0, 0, 0.10),
-            )
-          ], borderRadius: BorderRadius.circular(10), color: Colors.white),
-          child: ListTile(
-            leading: Container(
-              width: 100,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
               ),
-              child: CachedNetworkImage(
-                memCacheWidth: 262,
-                memCacheHeight: 147,
-                imageUrl: image,
-                fit: BoxFit.cover,
-                progressIndicatorBuilder: (context, url, imgDownloadProgress) =>
-                    CircularProgressIndicator(
-                        value: imgDownloadProgress.progress,
-                        strokeWidth: 0.2,
-                        strokeAlign: 0.0,
-                        color: Colors.orange),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                //cacheManager: GlobalCacheManager.customCacheManager,
-              ),
-            ),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => BlocProvider(
-                    create: (context) => SearchResultsBloc(),
-                    child: SearchResults(
-                      id: text,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Material(
+              color: Colors.white,
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider(
+                        create: (context) => SearchResultsBloc(),
+                        child: SearchResults(id: text),
+                      ),
                     ),
-                  ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 80,
+                      child: CachedNetworkImage(
+                        imageUrl: image,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          text,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    const SizedBox(width: 16),
+                  ],
                 ),
-              );
-            },
-            title: Text(
-              text,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-            trailing: const Icon(Icons.arrow_right_alt),
           ),
         ),
       ),

@@ -20,7 +20,11 @@ class RecipeInfoSuccesState extends RecipeInfoState {
   });
 }
 
-class RecipeInfoErrorState extends RecipeInfoState {}
+class RecipeInfoErrorState extends RecipeInfoState {
+  final String errorMessage;
+
+  RecipeInfoErrorState(this.errorMessage);
+}
 
 class FailureState extends RecipeInfoState {
   final Failure error;

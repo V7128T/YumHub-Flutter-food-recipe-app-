@@ -37,10 +37,10 @@ class _LoginPageState extends State<LoginPage> {
             email: emailController.text, password: passwordController.text);
 
         await Future.delayed(const Duration(seconds: 2));
-        Navigator.push(
-            context,
-            PageTransition(
-                type: PageTransitionType.fade, child: const BottomNavView()));
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const BottomNavView()),
+          (Route<dynamic> route) => false,
+        );
       } on FirebaseAuthException catch (e) {
         print(e);
         String errorMessage = "An error occurred. Please try again later.";

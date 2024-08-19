@@ -18,7 +18,7 @@ import 'package:food_recipe_app/custom_dialogs/custom_fab_location.dart';
 import 'package:food_recipe_app/screens/shopping_list/shopping_list_manager.dart';
 import 'package:food_recipe_app/screens/shopping_list/shopping_list_screen.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:food_recipe_app/screens/utils.dart';
 import '../profile_screen/bloc/profile_bloc.dart';
 
 class IngredientManagerPage extends StatefulWidget {
@@ -87,71 +87,128 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+    final bool isAnonymous = user?.isAnonymous ?? true;
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Grocery List',
+          style: GoogleFonts.chivo(
+            textStyle: TextStyle(
+              fontSize: 28.0,
+              color: Colors.orange[800],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        actions: isAnonymous
+            ? []
+            : [
+                IconButton(
+                  icon: Icon(_showCombinedView ? Icons.list : Icons.grid_view,
+                      color: Colors.orange[800]),
+                  onPressed: _toggleViewMode,
+                ),
+                IconButton(
+                  icon: Icon(Icons.shopping_cart, color: Colors.orange[800]),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const ShoppingListScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.orange[50]!, Colors.orange[100]!],
+          ),
+        ),
+        child: SafeArea(
+          child:
+              isAnonymous ? _buildGuestOverlay() : _buildAuthenticatedContent(),
+        ),
+      ),
+      floatingActionButton: isAnonymous ? null : _buildFloatingActionButton(),
+      floatingActionButtonLocation: const CustomFabLocation(offsetY: 80),
+    );
+  }
+
+  Widget _buildGuestOverlay() {
+    return Stack(
+      children: [
+        Container(
+          color: Colors.black.withOpacity(0.5),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'You are logged in as a guest.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () => showGuestOverlay(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                  ),
+                  child: const Text('Create an Account'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAuthenticatedContent() {
     final userIngredientList = Provider.of<UserIngredientList>(context);
     final userRecipes = userIngredientList.userRecipes;
     final categorizedIngredients =
         userIngredientList.getCategorizedIngredients();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Grocery List',
-            style: GoogleFonts.chivo(
-              textStyle: const TextStyle(
-                  fontSize: 25.0,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
-            )),
-        actions: [
-          IconButton(
-            icon: Icon(_showCombinedView ? Icons.list : Icons.grid_view),
-            onPressed: _toggleViewMode,
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const ShoppingListScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : userRecipes.isEmpty
-              ? _buildEmptyState()
-              : _showCombinedView
-                  ? _buildCategorizedView(categorizedIngredients)
-                  : _buildRecipeView(userIngredientList),
-      floatingActionButton: ClipRRect(
-        borderRadius: BorderRadius.circular(16.0),
-        child: Container(
-          width: 56.0,
-          height: 56.0,
-          decoration: BoxDecoration(
-            color: Colors.orangeAccent,
-            border: Border.all(color: Colors.orangeAccent, width: 2.0),
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16.0),
-              onTap: () => _showDeleteHistory(context),
-              child: const Center(
-                child: Icon(
-                  Icons.history,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-              ),
-            ),
-          ),
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (userRecipes.isEmpty) {
+      return _buildEmptyState();
+    } else {
+      return _showCombinedView
+          ? _buildCategorizedView(categorizedIngredients)
+          : _buildRecipeView(userIngredientList);
+    }
+  }
+
+  Widget _buildFloatingActionButton() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.orange[400]!, Colors.orange[600]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(16.0),
       ),
-      floatingActionButtonLocation: const CustomFabLocation(offsetY: 80),
+      child: FloatingActionButton(
+        onPressed: () => _showDeleteHistory(context),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: const Icon(Icons.history, color: Colors.white),
+      ),
     );
   }
 
@@ -160,10 +217,18 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.restaurant_menu, size: 64.0, color: Colors.grey),
+          Icon(Icons.restaurant_menu, size: 64.0, color: Colors.orange[300]),
           const SizedBox(height: 16.0),
-          Text('No ingredients added yet.',
-              style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'No ingredients added yet.',
+            style: GoogleFonts.chivo(
+              textStyle: TextStyle(
+                fontSize: 18.0,
+                color: Colors.orange[800],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -174,16 +239,30 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
     return Stack(
       children: [
         ListView.builder(
-          padding:
-              const EdgeInsets.only(bottom: 70), // Add padding for the button
+          padding: const EdgeInsets.only(bottom: 70, top: 10),
           itemCount: categorizedIngredients.length,
           itemBuilder: (context, index) {
             final category = categorizedIngredients[index];
-            return ExpansionTile(
-              title: Text(category.category),
-              children: category.ingredients
-                  .map((ingredient) => _buildIngredientTile(ingredient, null))
-                  .toList(),
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ExpansionTile(
+                title: Text(
+                  category.category,
+                  style: GoogleFonts.chivo(
+                    textStyle: TextStyle(
+                      fontSize: 18.0,
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                children: category.ingredients
+                    .map((ingredient) => _buildIngredientTile(ingredient, null))
+                    .toList(),
+              ),
             );
           },
         ),
@@ -195,17 +274,18 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
             child: ElevatedButton(
               onPressed: _addToShoppingList,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: Colors.orange[800],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 15),
+                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: Text(
                 "Add to Shopping List",
                 style: GoogleFonts.chivo(
                   textStyle: const TextStyle(
                     color: Colors.white,
+                    fontSize: 16.0,
                   ),
                 ),
               ),
@@ -215,104 +295,11 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
     );
   }
 
-  // Widget _buildRecipeView(UserIngredientList userIngredientList) {
-  //   return ListView.builder(
-  //     itemCount: userIngredientList.userRecipes.length,
-  //     itemBuilder: (context, index) {
-  //       final recipeId = userIngredientList.userRecipes.keys.elementAt(index);
-  //       final recipe = userIngredientList.userRecipes[recipeId];
-  //       if (recipe == null) return const SizedBox.shrink();
-
-  //       final uniqueKey = ValueKey('recipe-$recipeId');
-
-  //       return Padding(
-  //         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-  //         child: GestureDetector(
-  //           onLongPress: () =>
-  //               _navigateToRecipeInfo(context, recipe.id.toString()),
-  //           child: Dismissible(
-  //             key: uniqueKey,
-  //             direction: DismissDirection.endToStart,
-  //             onDismissed: (_) => _removeRecipe(recipe),
-  //             background: Container(
-  //               decoration: BoxDecoration(
-  //                 color: Colors.red.shade300,
-  //                 borderRadius: BorderRadius.circular(12),
-  //               ),
-  //               alignment: Alignment.centerRight,
-  //               padding: const EdgeInsets.only(right: 20),
-  //               child: const Icon(Icons.delete, color: Colors.white),
-  //             ),
-  //             child: Card(
-  //               elevation: 0,
-  //               shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(12),
-  //                 side: BorderSide(color: Colors.grey.shade200),
-  //               ),
-  //               child: ClipRRect(
-  //                 borderRadius: BorderRadius.circular(12),
-  //                 child: ExpansionTile(
-  //                   leading: ClipRRect(
-  //                     borderRadius: BorderRadius.circular(8),
-  //                     child: CachedNetworkImage(
-  //                       imageUrl: recipe.image ?? '',
-  //                       width: 60,
-  //                       height: 60,
-  //                       memCacheWidth: 157,
-  //                       memCacheHeight: 147,
-  //                       fit: BoxFit.cover,
-  //                       placeholder: (context, url) => Container(
-  //                         color: Colors.grey.shade200,
-  //                         child:
-  //                             const Center(child: CircularProgressIndicator()),
-  //                       ),
-  //                       errorWidget: (context, url, error) => Container(
-  //                         color: Colors.grey.shade200,
-  //                         child: const Icon(Icons.error, color: Colors.grey),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   title: Text(
-  //                     recipe.title ?? 'Unknown Recipe',
-  //                     style: const TextStyle(
-  //                       fontSize: 16,
-  //                       fontWeight: FontWeight.bold,
-  //                     ),
-  //                   ),
-  //                   subtitle: Text(
-  //                     'Added on ${_formatDate(recipe.dateAdded)}',
-  //                     style: TextStyle(
-  //                       color: Colors.grey.shade600,
-  //                       fontSize: 12,
-  //                     ),
-  //                   ),
-  //                   children: recipe.extendedIngredients?.isEmpty ?? true
-  //                       ? [
-  //                           const ListTile(
-  //                             title: Text('No ingredients for this recipe'),
-  //                             textColor: Colors.grey,
-  //                           )
-  //                         ]
-  //                       : recipe.extendedIngredients!
-  //                           .map((ingredient) =>
-  //                               _buildIngredientTile(ingredient, recipe))
-  //                           .toList(),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   Widget _buildRecipeView(UserIngredientList userIngredientList) {
     return Stack(
       children: [
         ListView.builder(
-          padding:
-              const EdgeInsets.only(bottom: 70), // Add padding for the button
+          padding: const EdgeInsets.only(bottom: 70, top: 10),
           itemCount: userIngredientList.userRecipes.length,
           itemBuilder: (context, index) {
             final recipeId =
@@ -327,7 +314,6 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                       _selectedIngredients.contains(ingredient.uniqueId),
                 ) ??
                 false;
-
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: GestureDetector(
@@ -347,20 +333,10 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                           .add(UpdateRecipesCount(newCount));
                     }
                   },
-                  background: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade300,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
                   child: Card(
-                    elevation: 0,
+                    elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.grey.shade200),
                     ),
                     child: ExpansionTile(
                       leading: ClipRRect(
@@ -386,13 +362,16 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                           ),
                         ),
                       ),
-                      title: Text(recipe.title ?? 'Unknown Recipe',
-                          style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                                fontSize: 14.0,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600),
-                          )),
+                      title: Text(
+                        recipe.title ?? 'Unknown Recipe',
+                        style: GoogleFonts.chivo(
+                          textStyle: TextStyle(
+                            fontSize: 16.0,
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                       subtitle: Text(
                         'Added on ${_formatDate(recipe.dateAdded)}',
                         style: TextStyle(
@@ -444,9 +423,9 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
             child: ElevatedButton(
               onPressed: _addToShoppingList,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: Colors.orange[800],
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(30),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
@@ -455,6 +434,8 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                 style: GoogleFonts.chivo(
                   textStyle: const TextStyle(
                     color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -492,37 +473,6 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
     );
   }
 
-  // Widget _buildIngredientTile(ExtendedIngredient ingredient, Recipe? recipe) {
-  //   final uniqueKey = ValueKey(
-  //       '${recipe?.id ?? 'combined'}-${ingredient.uniqueId}-${DateTime.now().microsecondsSinceEpoch}');
-  //   return Dismissible(
-  //     key: uniqueKey,
-  //     direction: DismissDirection.endToStart,
-  //     onDismissed: (_) => _removeIngredient(ingredient, recipe),
-  //     background: Container(
-  //       color: Colors.red.shade100,
-  //       alignment: Alignment.centerRight,
-  //       padding: const EdgeInsets.only(right: 20),
-  //       child: Icon(Icons.delete, color: Colors.red.shade700),
-  //     ),
-  //     child: ListTile(
-  //       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-  //       title: Text(
-  //         ingredient.name ?? '',
-  //         style: const TextStyle(fontWeight: FontWeight.w500),
-  //       ),
-  //       subtitle: Text(
-  //         '${ingredient.convertedAmount?.toStringAsFixed(2) ?? ingredient.amount?.toStringAsFixed(2) ?? ''} ${ingredient.convertedUnit ?? ingredient.unit ?? ''}',
-  //         style: TextStyle(color: Colors.grey.shade600),
-  //       ),
-  //       trailing: IconButton(
-  //         icon: const Icon(Icons.edit, color: Colors.blue),
-  //         onPressed: () => _editIngredient(ingredient, recipe),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _buildIngredientTile(ExtendedIngredient ingredient, Recipe? recipe) {
     final uniqueKey = ValueKey(
         '${recipe?.id ?? 'combined'}-${ingredient.uniqueId}-${DateTime.now().microsecondsSinceEpoch}');
@@ -537,42 +487,49 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
         padding: const EdgeInsets.only(right: 20),
         child: Icon(Icons.delete, color: Colors.red.shade700),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    ingredient.name ?? '',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    '${ingredient.amount} ${ingredient.unit} (${ingredient.convertedAmount?.toStringAsFixed(2) ?? ingredient.amount?.toStringAsFixed(2) ?? ''} ${ingredient.convertedUnit ?? ingredient.unit ?? ''})',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                ],
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.orange[100]!, width: 1),
+          ),
+        ),
+        child: ListTile(
+          title: Text(
+            ingredient.name ?? '',
+            style: GoogleFonts.chivo(
+              textStyle: TextStyle(
+                fontSize: 16.0,
+                color: Colors.orange[800],
+                fontWeight: FontWeight.w500,
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blue),
-              onPressed: () => _editIngredient(ingredient, recipe),
-            ),
-            Checkbox(
-              value: _selectedIngredients.contains(ingredient.uniqueId),
-              onChanged: (bool? value) {
-                setState(() {
-                  if (value == true) {
-                    _selectedIngredients.add(ingredient.uniqueId);
-                  } else {
-                    _selectedIngredients.remove(ingredient.uniqueId);
-                  }
-                });
-              },
-            ),
-          ],
+          ),
+          subtitle: Text(
+            '${ingredient.amount} ${ingredient.unit} (${ingredient.convertedAmount?.toStringAsFixed(2) ?? ingredient.amount?.toStringAsFixed(2) ?? ''} ${ingredient.convertedUnit ?? ingredient.unit ?? ''})',
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.orange[600]),
+                onPressed: () => _editIngredient(ingredient, recipe),
+              ),
+              Checkbox(
+                value: _selectedIngredients.contains(ingredient.uniqueId),
+                onChanged: (bool? value) {
+                  setState(() {
+                    if (value == true) {
+                      _selectedIngredients.add(ingredient.uniqueId);
+                    } else {
+                      _selectedIngredients.remove(ingredient.uniqueId);
+                    }
+                  });
+                },
+                activeColor: Colors.orange[800],
+              ),
+            ],
+          ),
         ),
       ),
     );

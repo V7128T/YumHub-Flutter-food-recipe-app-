@@ -32,7 +32,7 @@ class RecipeInfoBloc extends Bloc<RecipeInfoEvent, RecipeInfoState> {
           emit(FailureState(error: e));
         } catch (e) {
           print(e.toString());
-          emit(RecipeInfoErrorState());
+          emit(RecipeInfoErrorState(e.toString()));
         }
       }
     });

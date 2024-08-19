@@ -26,7 +26,11 @@ class HomeRecipesSuccess extends HomeRecipesState {
   });
 }
 
-class HomeRecipesError extends HomeRecipesState {}
+class HomeRecipesError extends HomeRecipesState {
+  final String errorMessage;
+
+  HomeRecipesError(this.errorMessage);
+}
 
 class HomeFailureState extends HomeRecipesState {
   final Failure error;

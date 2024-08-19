@@ -12,6 +12,7 @@ import 'package:food_recipe_app/screens/search_results/bloc/search_result_bloc.d
 import 'package:food_recipe_app/screens/search_results/search_result_screen.dart';
 import 'package:food_recipe_app/widgets/loading_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../custom_dialogs/error_widget.dart';
 
 class HomeRecipeScreen extends StatefulWidget {
   const HomeRecipeScreen({super.key});
@@ -39,45 +40,64 @@ class _HomeRecipeScreenState extends State<HomeRecipeScreen> {
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: Colors.white,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.orange[50]!, Colors.orange[50]!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          backgroundColor: Colors.transparent,
           title: Text(
             "YumHub",
             style: GoogleFonts.chivo(
-              textStyle: const TextStyle(
-                fontSize: 25.0,
-                color: Colors.black,
+              textStyle: TextStyle(
+                fontSize: 28.0,
+                color: Colors.orange[800],
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
         ),
-        backgroundColor: Colors.white,
-        body: BlocBuilder<HomeRecipesBloc, HomeRecipesState>(
-          builder: (context, state) {
-            if (state is HomeRecipesLoading) {
-              return const Center(child: LoadingWidget());
-            } else if (state is HomeRecipesSuccess) {
-              ///Display Home Screen Recipes
-              return HomeScreenWidget(
-                breakfast: state.breakfast,
-                cake: state.cake,
-                drinks: state.drinks,
-                burgers: state.burgers,
-                lunch: state.lunch,
-                pizza: state.pizza,
-                rice: state.rice,
-              );
-            } else if (state is HomeRecipesError) {
-              ///On Failure
-              return const Center(
-                child: Text("Error"),
-              );
-            } else {
-              return const Center(
-                child: Text("Nothing Happens"),
-              );
-            }
-          },
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.orange[50]!, Colors.orange[100]!],
+            ),
+          ),
+          child: BlocBuilder<HomeRecipesBloc, HomeRecipesState>(
+            builder: (context, state) {
+              if (state is HomeRecipesLoading) {
+                return const Center(child: LoadingWidget());
+              } else if (state is HomeRecipesSuccess) {
+                ///Display Home Screen Recipes
+                return HomeScreenWidget(
+                  breakfast: state.breakfast,
+                  cake: state.cake,
+                  drinks: state.drinks,
+                  burgers: state.burgers,
+                  lunch: state.lunch,
+                  pizza: state.pizza,
+                  rice: state.rice,
+                );
+              } else if (state is HomeRecipesError) {
+                return ErrorDisplay(
+                  errorMessage: state.errorMessage
+                          .contains('API call limit reached')
+                      ? "You've reached the daily limit of 150 API calls. Please try again tomorrow or upgrade your plan."
+                      : state.errorMessage,
+                );
+              } else {
+                return const Center(
+                  child: Text("Unexpected state. Please restart the app."),
+                );
+              }
+            },
+          ),
         ),
       ),
     );
@@ -113,9 +133,7 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
     return ListView(
       physics: const BouncingScrollPhysics(),
       children: [
-        const SizedBox(
-          height: 30,
-        ),
+        const SizedBox(height: 20),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: DelayedDisplay(
@@ -131,9 +149,6 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
         ),
         const SizedBox(height: 20),
         const HorizontalList(),
-        const Padding(
-          padding: EdgeInsets.all(26.0),
-        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 26.0),
           child: header("Popular Breakfast Recipes", "breakfast"),
@@ -155,7 +170,7 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
                 return ListItem(
                   meal: meal,
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),
@@ -211,12 +226,24 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
         children: [
           DelayedDisplay(
             delay: const Duration(microseconds: 600),
-            child: Text(
-              name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+            child: Row(
+              // Wrap multiple widgets in a Row
+              children: [
+                Container(
+                  width: 5,
+                  height: 25,
+                  color: Colors.orange,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.orange[800],
+                  ),
+                ),
+              ],
             ),
           ),
           IconButton(
@@ -232,7 +259,8 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
                   ),
                 );
               },
-              icon: const Icon(Icons.arrow_forward_sharp))
+              icon: const Icon(Icons.arrow_forward_sharp),
+              color: Colors.orange)
         ],
       ),
     );
