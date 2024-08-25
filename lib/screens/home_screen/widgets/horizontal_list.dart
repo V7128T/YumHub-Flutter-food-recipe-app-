@@ -1,29 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/animation/animation.dart';
+import 'package:food_recipe_app/custom_colors/app_colors.dart';
 import 'package:food_recipe_app/screens/search_results/bloc/search_result_bloc.dart';
 import 'package:food_recipe_app/screens/search_results/search_result_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../search_page/cubit/search_page_state.dart';
+
+String capitalize(String s) =>
+    s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : '';
 
 class HorizontalList extends StatelessWidget {
   const HorizontalList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
             'Explore Categories',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+            style: GoogleFonts.playfairDisplay(
+              textStyle: const TextStyle(
+                fontSize: 20.0,
+                color: AppColors.secFont,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
-        SingleChildScrollView(
+        const SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: <Widget>[
@@ -82,6 +90,7 @@ class ChipWidget extends StatelessWidget {
                     create: (context) => SearchResultsBloc(),
                     child: SearchResults(
                       id: text,
+                      searchMode: SearchMode.regular,
                     ),
                   ),
                 ),
@@ -98,10 +107,12 @@ class ChipWidget extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Text(
                   text,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 14,
+                  style: GoogleFonts.montserratAlternates(
+                    textStyle: const TextStyle(
+                      fontSize: 14.0,
+                      color: AppColors.primFont,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

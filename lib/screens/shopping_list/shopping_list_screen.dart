@@ -436,7 +436,15 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.red),
-            onPressed: shoppingList.isEmpty ? null : _clearShoppingList,
+            onPressed: shoppingList.isEmpty
+                ? null
+                : () async {
+                    final shouldClear =
+                        await showShoppingListClearConfirmationDialog(context);
+                    if (shouldClear == true) {
+                      await _clearShoppingList();
+                    }
+                  },
           ),
         ],
       ),
@@ -493,6 +501,41 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               style: GoogleFonts.chivo(fontSize: 16, color: Colors.white)),
         ),
       ),
+    );
+  }
+
+  Future<bool?> showShoppingListClearConfirmationDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Text('Clear Shopping List',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold, color: Colors.orange[800])),
+          content: Text(
+              'Are you sure you want to clear your entire shopping list?',
+              style: GoogleFonts.poppins()),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel',
+                  style: GoogleFonts.poppins(color: Colors.grey[600])),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[800],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text('Clear',
+                  style: GoogleFonts.poppins(color: Colors.white)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
     );
   }
 }

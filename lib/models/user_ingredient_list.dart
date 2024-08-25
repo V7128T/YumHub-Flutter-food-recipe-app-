@@ -104,12 +104,14 @@ class UserIngredientList extends ChangeNotifier {
 
     await FirestoreServices.saveUserRecipe(
         userId, recipe.id.toString(), recipe);
+    await _recordActivity(
+        userId, 'Added recipe', recipe.title ?? 'Unknown recipe');
 
     notifyListeners();
   }
 
-  void removeIngredient(String userId, String recipeId,
-      ExtendedIngredient ingredient, String recipeTitle) {
+  Future<void> removeIngredient(String userId, String recipeId,
+      ExtendedIngredient ingredient, String recipeTitle) async {
     if (_userRecipes.containsKey(recipeId)) {
       final recipe = _userRecipes[recipeId];
       recipe?.extendedIngredients
@@ -124,33 +126,38 @@ class UserIngredientList extends ChangeNotifier {
         dateRemoved: DateTime.now(),
       ));
 
-      saveDeleteHistory(userId);
+      await saveDeleteHistory(userId);
+      await _recordActivity(
+          userId, 'Removed ingredient', '${ingredient.name} from $recipeTitle');
       notifyListeners();
     }
   }
 
-  void clearRecipe(String userId, String recipeId) {
+  Future<void> clearRecipe(String userId, String recipeId) async {
     if (_userRecipes.containsKey(recipeId)) {
       final deletedRecipe = _userRecipes.remove(recipeId);
       if (deletedRecipe != null) {
         deletedRecipe.dateRemoved = DateTime.now();
         _recentlyDeletedRecipes.add(deletedRecipe);
         FirestoreServices.removeUserRecipe(userId, recipeId);
-        saveDeleteHistory(userId);
+        await saveDeleteHistory(userId);
+        await _recordActivity(
+            userId, 'Removed recipe', deletedRecipe.title ?? 'Unknown recipe');
         notifyListeners();
       }
     }
   }
 
-  void clearAllDeletedRecipes(String userId) {
-    _recentlyDeletedRecipes.clear();
-    FirestoreServices.clearAllDeletedRecipes(userId);
-    notifyListeners();
-  }
-
-  void clearAllRemovedIngredients(String userId) {
-    _recentlyRemovedIngredients.clear();
-    notifyListeners();
+  Future<void> clearAllDeleteHistory(String userId) async {
+    try {
+      await FirestoreServices.clearAllDeleteHistory(userId);
+      _recentlyDeletedRecipes.clear();
+      _recentlyRemovedIngredients.clear();
+      notifyListeners();
+      print('All delete history cleared for user: $userId');
+    } catch (e) {
+      print('Error clearing all delete history: $e');
+    }
   }
 
   Future<void> restoreRecipe(String userId, Recipe recipe) async {
@@ -302,6 +309,23 @@ class UserIngredientList extends ChangeNotifier {
         });
         notifyListeners();
       }
+    }
+  }
+
+  Future<void> _recordActivity(
+      String userId, String action, String item) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('recent_activity')
+          .add({
+        'action': action,
+        'item': item,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print('Error recording activity: $e');
     }
   }
 

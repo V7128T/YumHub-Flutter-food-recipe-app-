@@ -19,6 +19,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:food_recipe_app/screens/authentication_screen/email_signup_page.dart';
 import 'package:food_recipe_app/main.dart';
 import 'package:food_recipe_app/repo/get_recipe_by_ingredients.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../custom_colors/app_colors.dart';
+import '../../models/recipe.dart';
+
+String capitalize(String s) =>
+    s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : '';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -31,6 +37,7 @@ class _SearchPageState extends State<SearchPage> {
   late final SearchPageCubit _searchPageCubit;
   late final TextEditingController _searchController;
   bool _isAdvancedSearchEnabled = false;
+  bool _isVideoSearchEnabled = false;
 
   @override
   void initState() {
@@ -89,16 +96,23 @@ class _SearchPageState extends State<SearchPage> {
                                 child: TextField(
                                   controller: _searchController,
                                   decoration: InputDecoration(
-                                    hintText: state.isAdvancedSearchEnabled
-                                        ? "Enter ingredients, separated by commas"
-                                        : "Search Recipes..",
+                                    hintText: _isVideoSearchEnabled
+                                        ? "Search recipe videos"
+                                        : _isAdvancedSearchEnabled
+                                            ? "Enter ingredients, separated by commas"
+                                            : "Search recipe name",
+                                    hintStyle: GoogleFonts.chivo(
+                                      textStyle: const TextStyle(
+                                        fontSize: 13.0,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
                                     suffixIcon: IconButton(
-                                      icon: Icon(Icons.search,
-                                          color:
-                                              Theme.of(context).primaryColor),
+                                      icon: const Icon(Icons.search,
+                                          color: AppColors.secFont),
                                       onPressed: () {
-                                        _searchPageCubit
-                                            .textChange(state.searchText);
+                                        _searchPageCubit.submitSearch();
                                       },
                                     ),
                                     contentPadding: const EdgeInsets.symmetric(
@@ -108,7 +122,8 @@ class _SearchPageState extends State<SearchPage> {
                                       borderSide: BorderSide.none,
                                     ),
                                     filled: true,
-                                    fillColor: Colors.grey[200],
+                                    fillColor:
+                                        const Color.fromARGB(64, 150, 107, 33),
                                   ),
                                   onChanged: (value) {
                                     _searchPageCubit.textChange(value);
@@ -124,6 +139,11 @@ class _SearchPageState extends State<SearchPage> {
                                                 SearchResultsBloc(),
                                             child: SearchResults(
                                               id: v,
+                                              searchMode: _isVideoSearchEnabled
+                                                  ? SearchMode.videos
+                                                  : _isAdvancedSearchEnabled
+                                                      ? SearchMode.ingredients
+                                                      : SearchMode.regular,
                                             ),
                                           ),
                                         ),
@@ -133,14 +153,14 @@ class _SearchPageState extends State<SearchPage> {
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.filter_alt,
-                                    color: Theme.of(context).primaryColor),
+                                icon: const Icon(Icons.filter_alt,
+                                    color: AppColors.secFont),
                                 onPressed: () => _showFilterDrawer(context),
                               ),
                             ],
                           ),
                         ),
-                        if (state.isAdvancedSearchEnabled)
+                        if (_isAdvancedSearchEnabled)
                           SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -160,326 +180,35 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                         if (isAnonymous)
                           SliverFillRemaining(
-                            child: Stack(
-                              children: [
-                                SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 25.0, vertical: 20),
-                                        child: Text(
-                                          "Most Recent Searches by People",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Wrap(
-                                          alignment: WrapAlignment.start,
-                                          children: [
-                                            ChipWidget("Baking"),
-                                            ChipWidget("Vegetarian"),
-                                            ChipWidget("Sauces"),
-                                            ChipWidget("Meat"),
-                                            ChipWidget("Turkey"),
-                                            ChipWidget("Chicken"),
-                                            ChipWidget("Sausages"),
-                                            ChipWidget("Mince"),
-                                            ChipWidget("Burgers"),
-                                            ChipWidget("Pasta"),
-                                            ChipWidget("Noodles"),
-                                            ChipWidget("Pizza"),
-                                            ChipWidget("Soups"),
-                                          ],
-                                        ),
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 25.0, vertical: 10),
-                                        child: Text(
-                                          "Recipes by Categories",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                                      const CategoryTile(
-                                          text: "Main course",
-                                          image:
-                                              "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
-                                      const CategoryTile(
-                                          text: "Side-dish",
-                                          image:
-                                              "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
-                                      const CategoryTile(
-                                          text: "Dessert",
-                                          image:
-                                              "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
-                                      const CategoryTile(
-                                          text: "Appetizer",
-                                          image:
-                                              "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
-                                      const CategoryTile(
-                                        text: "Salad",
-                                        image:
-                                            "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Bread",
-                                        image:
-                                            "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Breakfast",
-                                        image:
-                                            "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Soup",
-                                        image:
-                                            "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Beverage",
-                                        image:
-                                            "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Sauce",
-                                        image:
-                                            "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Marinade",
-                                        image:
-                                            "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Fingerfood",
-                                        image:
-                                            "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Snack",
-                                        image:
-                                            "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                      ),
-                                      const CategoryTile(
-                                        text: "Drink",
-                                        image:
-                                            "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
-                                      ),
-                                      Container(
-                                        color: Colors.black.withOpacity(0.5),
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Text(
-                                                'You are logged in as a guest.',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18.0,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10.0),
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  showGuestOverlay(context);
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.orange,
-                                                ),
-                                                child: const Text(
-                                                    'Create an Account'),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: Container(
-                                    color: Colors.black.withOpacity(0.7),
-                                    child: Center(
-                                      child: Container(
-                                        padding: const EdgeInsets.all(20),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Text(
-                                              'You are logged in as a guest.',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 18.0,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10.0),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                showGuestOverlay(context);
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.orange,
-                                              ),
-                                              child: const Text(
-                                                  'Create an Account'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            child: _buildAnonymousContent(context),
                           )
-                        else if (state.status == Status.success &&
-                            state.searchList.isNotEmpty)
-                          SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                return SearchAutoCompleteTile(
-                                    list: state.searchList[index]);
-                              },
-                              childCount: state.searchList.length,
-                            ),
-                          )
+                        else if (state.status == Status.success)
+                          _isVideoSearchEnabled
+                              ? SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      return _buildVideoItem(
+                                          state.videos[index]);
+                                    },
+                                    childCount: state.videos.length,
+                                  ),
+                                )
+                              : SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      return SearchAutoCompleteTile(
+                                          list: state.searchList[index]);
+                                    },
+                                    childCount: state.searchList.length,
+                                  ),
+                                )
                         else if (state.status == Status.loading)
                           const SliverFillRemaining(
                             child: Center(child: LoadingWidget()),
                           )
                         else
-                          SliverList(
-                            delegate: SliverChildListDelegate(
-                              [
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 25.0, vertical: 20),
-                                  child: Text(
-                                    "Most Recent Searches by People",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Wrap(
-                                    alignment: WrapAlignment.start,
-                                    children: [
-                                      ChipWidget("Baking"),
-                                      ChipWidget("Vegetarian"),
-                                      ChipWidget("Sauces"),
-                                      ChipWidget("Meat"),
-                                      ChipWidget("Turkey"),
-                                      ChipWidget("Chicken"),
-                                      ChipWidget("Sausages"),
-                                      ChipWidget("Mince"),
-                                      ChipWidget("Burgers"),
-                                      ChipWidget("Pasta"),
-                                      ChipWidget("Noodles"),
-                                      ChipWidget("Pizza"),
-                                      ChipWidget("Soups"),
-                                    ],
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 25.0, vertical: 10),
-                                  child: Text(
-                                    "Recipes by Categories",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                                const CategoryTile(
-                                    text: "Main course",
-                                    image:
-                                        "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
-                                const CategoryTile(
-                                    text: "Side-dish",
-                                    image:
-                                        "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
-                                const CategoryTile(
-                                    text: "Dessert",
-                                    image:
-                                        "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
-                                const CategoryTile(
-                                    text: "Appetizer",
-                                    image:
-                                        "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
-                                const CategoryTile(
-                                  text: "Salad",
-                                  image:
-                                      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Bread",
-                                  image:
-                                      "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Breakfast",
-                                  image:
-                                      "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Soup",
-                                  image:
-                                      "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Beverage",
-                                  image:
-                                      "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Sauce",
-                                  image:
-                                      "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Marinade",
-                                  image:
-                                      "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Fingerfood",
-                                  image:
-                                      "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Snack",
-                                  image:
-                                      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-                                ),
-                                const CategoryTile(
-                                  text: "Drink",
-                                  image:
-                                      "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
-                                ),
-                              ],
-                            ),
+                          SliverToBoxAdapter(
+                            child: _buildDefaultContent(),
                           ),
                       ],
                     ),
@@ -493,7 +222,241 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  Widget _buildAnonymousContent(BuildContext context) {
+    return Stack(
+      children: [
+        SingleChildScrollView(child: _buildDefaultContent()),
+        Positioned.fill(
+          child: Container(
+            color: Colors.black.withOpacity(0.7),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'You are logged in as a guest.',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        showGuestOverlay(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                      ),
+                      child: const Text('Create an Account'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDefaultContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
+          child: Text(
+            "Most Searched By People",
+            style: GoogleFonts.playfairDisplay(
+              textStyle: const TextStyle(
+                fontSize: 20.0,
+                color: AppColors.secFont,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 25.0),
+          child: Wrap(
+            alignment: WrapAlignment.start,
+            children: [
+              ChipWidget("Baking"),
+              ChipWidget("Vegetarian"),
+              ChipWidget("Sauces"),
+              ChipWidget("Meat"),
+              ChipWidget("Turkey"),
+              ChipWidget("Chicken"),
+              ChipWidget("Sausages"),
+              ChipWidget("Mince"),
+              ChipWidget("Burgers"),
+              ChipWidget("Pasta"),
+              ChipWidget("Noodles"),
+              ChipWidget("Pizza"),
+              ChipWidget("Soups"),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 10),
+          child: Text(
+            "More Categories",
+            style: GoogleFonts.playfairDisplay(
+              textStyle: const TextStyle(
+                fontSize: 20.0,
+                color: AppColors.secFont,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const CategoryTile(
+            text: "Main course",
+            image:
+                "https://images.unsplash.com/photo-1559847844-5315695dadae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=740&q=80"),
+        const CategoryTile(
+            text: "Side-dish",
+            image:
+                "https://images.unsplash.com/photo-1534938665420-4193effeacc4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80"),
+        const CategoryTile(
+            text: "Dessert",
+            image:
+                "https://images.unsplash.com/photo-1587314168485-3236d6710814?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=670&q=80"),
+        const CategoryTile(
+            text: "Appetizer",
+            image:
+                "https://images.unsplash.com/photo-1541529086526-db283c563270?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"),
+        const CategoryTile(
+          text: "Salad",
+          image:
+              "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+        ),
+        const CategoryTile(
+          text: "Bread",
+          image:
+              "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80",
+        ),
+        const CategoryTile(
+          text: "Breakfast",
+          image:
+              "https://images.unsplash.com/photo-1525351484163-7529414344d8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+        ),
+        const CategoryTile(
+          text: "Soup",
+          image:
+              "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=751&q=80",
+        ),
+        const CategoryTile(
+          text: "Beverage",
+          image:
+              "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+        ),
+        const CategoryTile(
+          text: "Sauce",
+          image:
+              "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+        ),
+        const CategoryTile(
+          text: "Marinade",
+          image:
+              "https://images.unsplash.com/photo-1598511757337-fe2cafc31ba0?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+        ),
+        const CategoryTile(
+          text: "Fingerfood",
+          image:
+              "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+        ),
+        const CategoryTile(
+          text: "Snack",
+          image:
+              "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+        ),
+        const CategoryTile(
+          text: "Drink",
+          image:
+              "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVideoItem(RecipeVideo video) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: ListTile(
+        leading: CachedNetworkImage(
+          imageUrl: video.thumbnail,
+          width: 100,
+          height: 60,
+          fit: BoxFit.cover,
+        ),
+        title: Text(
+          capitalize(video.title),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.montserrat(
+            textStyle: const TextStyle(
+              fontSize: 15.0,
+              color: AppColors.secFont,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        subtitle: Text(
+          video.views != null
+              ? '${video.views} views'
+              : 'Tap to watch on YouTube',
+          style: GoogleFonts.montserrat(
+            textStyle: TextStyle(
+              fontSize: 12.0,
+              color: Colors.grey[600],
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
+        trailing: video.rating != null
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    video.rating!.toStringAsFixed(1),
+                    style: GoogleFonts.montserrat(fontSize: 12),
+                  ),
+                ],
+              )
+            : null,
+        onTap: () async {
+          final youtubeUrl =
+              Uri.parse('https://www.youtube.com/watch?v=${video.youTubeId}');
+          if (await canLaunchUrl(youtubeUrl)) {
+            await launchUrl(youtubeUrl);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Could not open YouTube video')),
+            );
+          }
+        },
+      ),
+    );
+  }
+
   void _showFilterDrawer(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color primaryColor = theme.primaryColor;
+    const Color backgroundColor = Colors.white;
+    const Color textColor = Colors.black87;
+    final Color inactiveColor = Colors.grey[400]!;
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -508,169 +471,128 @@ class _SearchPageState extends State<SearchPage> {
           ).animate(animation),
           child: Align(
             alignment: Alignment.centerRight,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.85,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  bottomLeft: Radius.circular(20),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(-3, 0),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.85,
+                height: MediaQuery.of(context).size.height,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
                   ),
-                ],
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(-3, 0),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Filter Options',
-                            style: GoogleFonts.poppins(
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                            softWrap: true,
-                            overflow: TextOverflow.visible,
-                          ),
-                          IconButton(
-                            icon:
-                                const Icon(Icons.close, color: Colors.black54),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 30.0),
-                      Text(
-                        'Search Mode',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54,
-                        ),
-                        softWrap: true,
-                        overflow: TextOverflow.visible,
-                      ),
-                      const SizedBox(height: 10.0),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(24.0),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _isAdvancedSearchEnabled = false;
-                                  });
-                                  _searchPageCubit.toggleAdvancedSearch();
-                                  Navigator.pop(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 12, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                    color: !_isAdvancedSearchEnabled
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(15),
-                                    boxShadow: !_isAdvancedSearchEnabled
-                                        ? [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(0.2),
-                                              spreadRadius: 1,
-                                              blurRadius: 3,
-                                              offset: const Offset(0, 1),
-                                            ),
-                                          ]
-                                        : null,
-                                  ),
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      'Normal',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.poppins(
-                                          textStyle: TextStyle(
-                                        fontSize: 20.0,
-                                        color: !_isAdvancedSearchEnabled
-                                            ? Colors.black87
-                                            : Colors.grey,
-                                        fontWeight: FontWeight.w600,
-                                      )),
-                                    ),
-                                  ),
-                                ),
+                            Text(
+                              'Filter Options',
+                              style: GoogleFonts.poppins(
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                                color: primaryColor,
                               ),
                             ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _isAdvancedSearchEnabled = true;
-                                  });
-                                  _searchPageCubit.toggleAdvancedSearch();
-                                  _searchPageCubit.emit(_searchPageCubit.state
-                                      .copyWith(ingredients: []));
-                                  Navigator.pop(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 12, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                    color: _isAdvancedSearchEnabled
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(15),
-                                    boxShadow: _isAdvancedSearchEnabled
-                                        ? [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(0.2),
-                                              spreadRadius: 1,
-                                              blurRadius: 3,
-                                              offset: const Offset(0, 1),
-                                            ),
-                                          ]
-                                        : null,
-                                  ),
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      'Ingredients',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.poppins(
-                                          textStyle: TextStyle(
-                                        fontSize: 20.0,
-                                        color: _isAdvancedSearchEnabled
-                                            ? Colors.black87
-                                            : Colors.grey,
-                                        fontWeight: FontWeight.w600,
-                                      )),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                            IconButton(
+                              icon: Icon(Icons.close, color: primaryColor),
+                              onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],
                         ),
                       ),
-                      // Add more filter options here as needed
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Search Mode',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 15.0),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      _buildFilterOption(
+                                        'Normal',
+                                        !_isAdvancedSearchEnabled &&
+                                            !_isVideoSearchEnabled,
+                                        () {
+                                          setState(() {
+                                            _isAdvancedSearchEnabled = false;
+                                            _isVideoSearchEnabled = false;
+                                          });
+                                          _searchPageCubit.resetSearch();
+                                          Navigator.of(context).pop();
+                                        },
+                                        primaryColor,
+                                        inactiveColor,
+                                      ),
+                                      _buildFilterOption(
+                                        'Ingredients',
+                                        _isAdvancedSearchEnabled,
+                                        () {
+                                          setState(() {
+                                            _isAdvancedSearchEnabled = true;
+                                            _isVideoSearchEnabled = false;
+                                          });
+                                          _searchPageCubit
+                                              .toggleAdvancedSearch();
+                                          _searchPageCubit.emit(_searchPageCubit
+                                              .state
+                                              .copyWith(ingredients: []));
+                                          Navigator.of(context).pop();
+                                        },
+                                        primaryColor,
+                                        inactiveColor,
+                                      ),
+                                      _buildFilterOption(
+                                        'Videos',
+                                        _isVideoSearchEnabled,
+                                        () {
+                                          setState(() {
+                                            _isAdvancedSearchEnabled = false;
+                                            _isVideoSearchEnabled = true;
+                                          });
+                                          _searchPageCubit.toggleVideoSearch();
+                                          Navigator.of(context).pop();
+                                        },
+                                        primaryColor,
+                                        inactiveColor,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -679,6 +601,35 @@ class _SearchPageState extends State<SearchPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildFilterOption(String label, bool isActive, VoidCallback onTap,
+      Color activeColor, Color inactiveColor) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: isActive ? activeColor.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 16.0,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                color: isActive ? activeColor : inactiveColor,
+              ),
+            ),
+            if (isActive) Icon(Icons.check_circle, color: activeColor),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -786,7 +737,10 @@ class CategoryTile extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => BlocProvider(
                         create: (context) => SearchResultsBloc(),
-                        child: SearchResults(id: text),
+                        child: SearchResults(
+                          id: text,
+                          searchMode: SearchMode.regular,
+                        ),
                       ),
                     ),
                   );
@@ -810,9 +764,12 @@ class CategoryTile extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           text,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                          style: GoogleFonts.playfairDisplay(
+                            textStyle: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -852,7 +809,6 @@ class _SearchAutoCompleteTileState extends State<SearchAutoCompleteTile> {
 
   @override
   Widget build(BuildContext context) {
-    //print(widget.list.image);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -906,8 +862,6 @@ class _SearchAutoCompleteTileState extends State<SearchAutoCompleteTile> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.grey.shade600,
-
-                    //cacheManager: GlobalCacheManager.customCacheManager,
                   ),
                   child: CachedNetworkImage(
                     memCacheWidth: 262,
@@ -931,19 +885,15 @@ class _SearchAutoCompleteTileState extends State<SearchAutoCompleteTile> {
                     errorWidget: (context, url, error) {
                       return const Icon(Icons.error); // Display erorr icon
                     },
-                    // image: DecorationImage(
-                    //   fit: BoxFit.cover,
-                    //   image: CachedNetworkImageProvider(widget.list.image),
-                    // ),
                   ),
                 ),
                 title: Text(
-                  widget.list.name.toUpperCase(),
-                  style: GoogleFonts.workSans(
+                  capitalize(widget.list.name),
+                  style: GoogleFonts.montserrat(
                     textStyle: const TextStyle(
                       fontSize: 15.0,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
+                      color: AppColors.secFont,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -952,7 +902,7 @@ class _SearchAutoCompleteTileState extends State<SearchAutoCompleteTile> {
               // Handle invalid URL
               return ListTile(
                 title: Text(
-                  "Failed to load",
+                  "Image Failed to Load.",
                   style: GoogleFonts.workSans(
                     textStyle: const TextStyle(
                       fontSize: 15.0,

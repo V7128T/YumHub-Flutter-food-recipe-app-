@@ -126,6 +126,34 @@ class FirestoreServices {
     return {};
   }
 
+  static Future<List<Map<String, dynamic>>> getRecentActivities(
+      String userId) async {
+    try {
+      print("Fetching recent activities for user: $userId");
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('recent_activity')
+          .orderBy('timestamp', descending: true)
+          .limit(10)
+          .get();
+
+      print("Fetched ${querySnapshot.docs.length} activities");
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        print("Activity data: $data");
+        return {
+          'action': data['action'],
+          'item': data['item'],
+          'timestamp': (data['timestamp'] as Timestamp).toDate(),
+        };
+      }).toList();
+    } catch (e) {
+      print('Error fetching recent activities: $e');
+      return [];
+    }
+  }
+
   static Future<void> permanentlyRemoveUserRecipe(
       String userId, String recipeId) async {
     await FirebaseFirestore.instance
@@ -194,16 +222,21 @@ class FirestoreServices {
     }
   }
 
-  static Future<void> clearAllDeletedRecipes(String userId) async {
-    final deletedRecipesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('deletedRecipes');
+  static Future<void> clearAllDeleteHistory(String userId) async {
+    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
 
-    final deletedRecipes = await deletedRecipesRef.get();
-    for (var doc in deletedRecipes.docs) {
-      await doc.reference.delete();
-    }
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final userDoc = await transaction.get(userRef);
+      if (!userDoc.exists) {
+        throw Exception("User does not exist!");
+      }
+
+      transaction.update(userRef, {
+        'deleteHistory': {'deletedRecipes': [], 'removedIngredients': []}
+      });
+    });
+
+    print('Cleared all delete history for user: $userId');
   }
 
   static Future<void> removeFromDeletedRecipes(

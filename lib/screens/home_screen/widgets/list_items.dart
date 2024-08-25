@@ -5,6 +5,10 @@ import 'package:food_recipe_app/animation/animation.dart';
 import 'package:food_recipe_app/models/food_type.dart';
 import 'package:food_recipe_app/screens/recipe_info/bloc/recipe_info_bloc.dart';
 import 'package:food_recipe_app/screens/recipe_info/recipe_info_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+String capitalize(String s) =>
+    s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : '';
 
 class ListItem extends StatefulWidget {
   final FoodType meal;
@@ -85,13 +89,15 @@ class _Listmealtate extends State<ListItem> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          widget.meal.name,
+                          capitalize(widget.meal.name),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.black87,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                          style: GoogleFonts.playfairDisplay(
+                            textStyle: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -103,10 +109,12 @@ class _Listmealtate extends State<ListItem> {
                             const SizedBox(width: 4),
                             Text(
                               "Ready in ${widget.meal.readyInMinutes} Min",
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  fontSize: 13.0,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],

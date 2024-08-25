@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../custom_colors/app_colors.dart';
 import '../../../models/nutrients.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,8 +13,6 @@ class CompactNutritionWidget extends StatefulWidget {
 }
 
 class _CompactNutritionWidgetState extends State<CompactNutritionWidget> {
-  bool _isExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -46,7 +45,7 @@ class _CompactNutritionWidgetState extends State<CompactNutritionWidget> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(10),
         child: Column(
           children: [
             Icon(icon, color: Colors.orange[800], size: 24),
@@ -73,10 +72,10 @@ class _CompactNutritionWidgetState extends State<CompactNutritionWidget> {
     return ExpansionTile(
       title: Text(
         "Detailed Nutrition Information",
-        style: GoogleFonts.chivo(
-          textStyle: TextStyle(
+        style: GoogleFonts.playfairDisplay(
+          textStyle: const TextStyle(
             fontSize: 16,
-            color: Colors.orange[600],
+            color: Color.fromARGB(255, 161, 77, 2),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -87,9 +86,7 @@ class _CompactNutritionWidgetState extends State<CompactNutritionWidget> {
         _buildNutrientSection("Beneficial Nutrients", widget.nutrient.good),
       ],
       onExpansionChanged: (expanded) {
-        setState(() {
-          _isExpanded = expanded;
-        });
+        setState(() {});
       },
     );
   }
@@ -102,7 +99,7 @@ class _CompactNutritionWidgetState extends State<CompactNutritionWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
             title,
-            style: GoogleFonts.chivo(
+            style: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -124,15 +121,15 @@ class _CompactNutritionWidgetState extends State<CompactNutritionWidget> {
             flex: 2,
             child: Text(
               nutrient.name,
-              style:
-                  GoogleFonts.chivo(fontSize: 12, fontWeight: FontWeight.w500),
+              style: GoogleFonts.poppins(
+                  fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
               nutrient.amount,
-              style: GoogleFonts.chivo(
+              style: GoogleFonts.poppins(
                   fontSize: 12,
                   color: Colors.green,
                   fontWeight: FontWeight.bold),
@@ -149,7 +146,7 @@ class _CompactNutritionWidgetState extends State<CompactNutritionWidget> {
           const SizedBox(width: 8),
           Text(
             "${nutrient.percentOfDailyNeeds}%",
-            style: GoogleFonts.chivo(fontSize: 12, color: Colors.grey[600]),
+            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
           ),
         ],
       ),

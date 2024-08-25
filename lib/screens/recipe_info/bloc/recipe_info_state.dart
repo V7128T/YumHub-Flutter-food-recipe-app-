@@ -22,8 +22,9 @@ class RecipeInfoSuccesState extends RecipeInfoState {
 
 class RecipeInfoErrorState extends RecipeInfoState {
   final String errorMessage;
+  final int errorCode;
 
-  RecipeInfoErrorState(this.errorMessage);
+  RecipeInfoErrorState({required this.errorMessage, required this.errorCode});
 }
 
 class FailureState extends RecipeInfoState {

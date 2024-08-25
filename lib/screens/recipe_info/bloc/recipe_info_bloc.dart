@@ -5,7 +5,6 @@ import '../../../models/equipment.dart';
 import '../../../models/nutrients.dart';
 import '../../../models/similar_list.dart';
 import '../../../repo/get_recipe_info.dart';
-
 part 'recipe_info_event.dart';
 part 'recipe_info_state.dart';
 
@@ -19,20 +18,33 @@ class RecipeInfoBloc extends Bloc<RecipeInfoEvent, RecipeInfoState> {
           emit(RecipeInfoLoadState());
           final data = await repo.getRecipeInfo(event.id);
 
-          ///Emitting Recipe Info through Particular ID
-          emit(
-            RecipeInfoSuccesState(
-              recipe: data[0],
-              nutrient: data[3],
-              similar: data[1].list,
-              equipment: data[2].items,
-            ),
-          );
-        } on Failure catch (e) {
-          emit(FailureState(error: e));
+          // Check if data contains the expected number of elements
+          if (data.length >= 4) {
+            emit(
+              RecipeInfoSuccesState(
+                recipe: data[0],
+                nutrient: data[3],
+                similar: data[1].list,
+                equipment: data[2].items,
+              ),
+            );
+          } else {
+            throw Failure(
+                code: 500, message: 'Incomplete data received from API');
+          }
         } catch (e) {
-          print(e.toString());
-          emit(RecipeInfoErrorState(e.toString()));
+          print('Error in RecipeInfoBloc: $e'); // Debugging log
+          if (e is Failure) {
+            emit(RecipeInfoErrorState(
+              errorMessage: e.message,
+              errorCode: e.code,
+            ));
+          } else {
+            emit(RecipeInfoErrorState(
+              errorMessage: e.toString(),
+              errorCode: 500,
+            ));
+          }
         }
       }
     });

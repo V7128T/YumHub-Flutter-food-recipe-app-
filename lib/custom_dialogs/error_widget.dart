@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../screens/home_screen/bloc/homerecipe_bloc.dart';
 import '../screens/home_screen/bloc/homerecipe_event.dart';
@@ -23,18 +24,27 @@ class ErrorDisplay extends StatelessWidget {
               size: 60,
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Oops! Something went wrong',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              style: GoogleFonts.robotoSerif(
+                textStyle: const TextStyle(
+                  fontSize: 20.0,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
             Text(
-              errorMessage,
-              style: const TextStyle(fontSize: 16),
+              "Error: $errorMessage",
+              style: GoogleFonts.robotoSerif(
+                textStyle: const TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -46,9 +56,19 @@ class ErrorDisplay extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 13),
               ),
-              child: const Text('Try Again'),
+              child: Text(
+                'Try Again',
+                style: GoogleFonts.chivo(
+                  textStyle: const TextStyle(
+                    fontSize: 15.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),

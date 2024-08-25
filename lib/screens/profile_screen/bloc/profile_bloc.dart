@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:food_recipe_app/auth_methods/firebaseFunctions.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../../../models/recent_activity.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
@@ -19,6 +21,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<UpdateProfilePicture>(_onUpdateProfilePicture);
     on<FetchRecipesCount>(_onFetchRecipesCount);
     on<UpdateRecipesCount>(_onUpdateRecipesCount);
+    on<FetchRecentActivity>(_onFetchRecentActivity);
   }
 
   FutureOr<void> _onLoadProfile(
@@ -34,12 +37,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           final userName = userData['name'] as String?;
           final recipesCount = userData['recipes_count'] as int? ?? 0;
           final likesCount = userData['likes_count'] as int? ?? 0;
+
           emit(ProfileLoaded(
             userName: userName ?? '',
             profilePictureUrl: userData['profile_picture_url'] ?? '',
             recipesCount: recipesCount,
             likesCount: likesCount,
           ));
+
+          add(FetchRecentActivity());
         } else {
           emit(ProfileError('User data not found'));
         }
@@ -142,6 +148,45 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           likesCount: currentState.likesCount,
         ));
       }
+    }
+  }
+
+  FutureOr<void> _onFetchRecentActivity(
+      FetchRecentActivity event, Emitter<ProfileState> emit) async {
+    print("_onFetchRecentActivity called");
+    if (state is ProfileLoaded) {
+      final currentState = state as ProfileLoaded;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        try {
+          final activities =
+              await FirestoreServices.getRecentActivities(user.uid);
+          print("Fetched activities: $activities");
+          final recentActivity = activities
+              .map((activity) => RecentActivity(
+                    action: activity['action'],
+                    item: activity['item'],
+                    timestamp: activity['timestamp'],
+                  ))
+              .toList();
+          print("Mapped recent activities: $recentActivity");
+
+          emit(ProfileLoaded(
+            userName: currentState.userName,
+            profilePictureUrl: currentState.profilePictureUrl,
+            recipesCount: currentState.recipesCount,
+            likesCount: currentState.likesCount,
+            recentActivity: recentActivity,
+          ));
+        } catch (e) {
+          print('Error in _onFetchRecentActivity: $e');
+          emit(ProfileError('Failed to fetch recent activity: $e'));
+        }
+      } else {
+        print("User is null in _onFetchRecentActivity");
+      }
+    } else {
+      print("State is not ProfileLoaded in _onFetchRecentActivity");
     }
   }
 }

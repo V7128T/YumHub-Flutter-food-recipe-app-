@@ -17,3 +17,5 @@ class UpdateRecipesCount extends ProfileEvent {
 
   UpdateRecipesCount(this.count);
 }
+
+class FetchRecentActivity extends ProfileEvent {}

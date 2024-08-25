@@ -8,6 +8,7 @@ import 'package:food_recipe_app/screens/more/more.dart';
 import 'package:food_recipe_app/screens/profile_screen/profile_page.dart';
 import 'package:food_recipe_app/screens/search_page/cubit/search_page_cubit.dart';
 import 'package:food_recipe_app/screens/search_page/search_page_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:food_recipe_app/screens/ingredient_screen/ingredient_manager_screen.dart';
 import 'package:food_recipe_app/repo/get_recipe_by_ingredients.dart';
@@ -56,6 +57,9 @@ class _BottomNavViewState extends State<BottomNavView> {
       activeColorPrimary: Theme.of(context).primaryColor,
       inactiveColorPrimary: Colors.grey.shade600,
       iconSize: 24,
+      textStyle: GoogleFonts.poppins(
+        fontSize: 12,
+      ),
     );
   }
 
@@ -92,36 +96,43 @@ class _BottomNavViewState extends State<BottomNavView> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: PersistentTabView(
-      context,
-      controller: _controller,
-      screens: _widgetOptions,
-      items: _navBarsItems(),
-      confineInSafeArea: true,
-      backgroundColor: AppColors.customPrimary,
-      handleAndroidBackButtonPress: true,
-      resizeToAvoidBottomInset: true,
-      hideNavigationBarWhenKeyboardShows: true,
-      decoration: NavBarDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        colorBehindNavBar: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+    return Navigator(
+      onGenerateRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) => Center(
+            child: PersistentTabView(
+              context,
+              controller: _controller,
+              screens: _widgetOptions,
+              items: _navBarsItems(),
+              confineInSafeArea: true,
+              backgroundColor: AppColors.customPrimary,
+              handleAndroidBackButtonPress: true,
+              resizeToAvoidBottomInset: true,
+              hideNavigationBarWhenKeyboardShows: true,
+              decoration: NavBarDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                colorBehindNavBar: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              popAllScreensOnTapOfSelectedTab: true,
+              navBarStyle: NavBarStyle.style6,
+              screenTransitionAnimation: const ScreenTransitionAnimation(
+                animateTabTransition: true,
+                curve: Curves.ease,
+                duration: Duration(milliseconds: 200),
+              ),
+            ),
           ),
-        ],
-      ),
-      popAllScreensOnTapOfSelectedTab: true,
-      navBarStyle: NavBarStyle.style6,
-      screenTransitionAnimation: const ScreenTransitionAnimation(
-        animateTabTransition: true,
-        curve: Curves.ease,
-        duration: Duration(milliseconds: 200),
-      ),
-    ));
+        );
+      },
+    );
   }
 }

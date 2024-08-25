@@ -180,7 +180,13 @@ class _DeleteHistorySheetState extends State<DeleteHistorySheet> {
           motion: const ScrollMotion(),
           children: [
             SlidableAction(
-              onPressed: (_) => _permanentlyRemoveRecipe(context, recipe),
+              onPressed: (_) async {
+                final shouldDelete =
+                    await showDeleteConfirmationDialog(context, 'recipe');
+                if (shouldDelete == true) {
+                  _permanentlyRemoveRecipe(context, recipe);
+                }
+              },
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               icon: Icons.delete_forever,
@@ -249,8 +255,13 @@ class _DeleteHistorySheetState extends State<DeleteHistorySheet> {
           motion: const ScrollMotion(),
           children: [
             SlidableAction(
-              onPressed: (_) =>
-                  _permanentlyRemoveIngredient(context, removedIngredient),
+              onPressed: (_) async {
+                final shouldDelete =
+                    await showDeleteConfirmationDialog(context, 'ingredient');
+                if (shouldDelete == true) {
+                  _permanentlyRemoveIngredient(context, removedIngredient);
+                }
+              },
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               icon: Icons.delete_forever,
@@ -379,16 +390,51 @@ class _DeleteHistorySheetState extends State<DeleteHistorySheet> {
             TextButton(
               child:
                   Text('Clear', style: GoogleFonts.poppins(color: Colors.red)),
-              onPressed: () {
+              onPressed: () async {
                 final user = FirebaseAuth.instance.currentUser;
                 if (user != null) {
-                  Provider.of<UserIngredientList>(context, listen: false)
-                      .clearAllDeletedRecipes(user.uid);
-                  Provider.of<UserIngredientList>(context, listen: false)
-                      .clearAllRemovedIngredients(user.uid);
+                  await Provider.of<UserIngredientList>(context, listen: false)
+                      .clearAllDeleteHistory(user.uid);
+                  setState(() {});
                 }
                 Navigator.of(context).pop();
               },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool?> showDeleteConfirmationDialog(
+      BuildContext context, String itemType) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Text('Confirm Delete',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold, color: Colors.red[800])),
+          content: Text(
+              'Are you sure you want to permanently delete this $itemType?',
+              style: GoogleFonts.poppins()),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel',
+                  style: GoogleFonts.poppins(color: Colors.grey[600])),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[800],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text('Delete',
+                  style: GoogleFonts.poppins(color: Colors.white)),
+              onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
         );

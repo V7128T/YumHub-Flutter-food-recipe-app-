@@ -44,10 +44,12 @@ class _RecipeInfoState extends State<RecipeInfo> {
               );
             } else if (state is RecipeInfoErrorState) {
               return ErrorDisplay(
-                errorMessage: state.errorMessage
-                        .contains('API call limit reached')
+                errorMessage: state.errorMessage.contains(
+                        'DioException [bad response]: This exception was thrown because the response has a status code of 402 and RequestOptions.validateStatus was configured to throw for this status code.')
                     ? "You've reached the daily limit of 150 API calls. Please try again tomorrow or upgrade your plan."
-                    : state.errorMessage,
+                    : state.errorCode == 404
+                        ? "Error 404: The requested resource could not be found."
+                        : state.errorMessage,
               );
             } else {
               return const Center(

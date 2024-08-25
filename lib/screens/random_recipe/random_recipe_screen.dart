@@ -44,8 +44,8 @@ class _RandomRecipeState extends State<RandomRecipe> {
               );
             } else if (state is RandomRecipeErrorState) {
               return ErrorDisplay(
-                errorMessage: state.errorMessage
-                        .contains('API call limit reached')
+                errorMessage: state.errorMessage.contains(
+                        'DioException [bad response]: This exception was thrown because the response has a status code of 402 and RequestOptions.validateStatus was configured to throw for this status code.')
                     ? "You've reached the daily limit of 150 API calls. Please try again tomorrow or upgrade your plan."
                     : state.errorMessage,
               );

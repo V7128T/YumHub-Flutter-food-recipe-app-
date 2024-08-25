@@ -2,10 +2,16 @@ class SearchResult {
   final String id;
   final String name;
   final String image;
+  final String? youTubeId;
+  final int? views;
+  final double? rating;
   SearchResult({
     required this.id,
     required this.name,
     required this.image,
+    this.youTubeId,
+    this.views,
+    this.rating,
   });
   factory SearchResult.fromJson(json) {
     return SearchResult(

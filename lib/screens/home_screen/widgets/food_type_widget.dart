@@ -4,6 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/models/food_type.dart';
 import 'package:food_recipe_app/screens/recipe_info/bloc/recipe_info_bloc.dart';
 import 'package:food_recipe_app/screens/recipe_info/recipe_info_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../custom_colors/app_colors.dart';
+
+String capitalize(String s) =>
+    s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : '';
 
 class FoodTypeWidget extends StatelessWidget {
   final List<FoodType> items;
@@ -91,22 +96,32 @@ class _RecipeCardTypeState extends State<RecipeCardType> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.items.name,
+                      capitalize(widget.items.name),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                      style: GoogleFonts.playfairDisplay(
+                        textStyle: const TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.access_time,
-                            size: 16, color: Colors.grey[600]),
+                        const Icon(Icons.access_time,
+                            size: 16, color: AppColors.primFont),
                         const SizedBox(width: 4),
                         Text(
                           "Ready in ${widget.items.readyInMinutes} Min",
-                          style:
-                              TextStyle(color: Colors.grey[600], fontSize: 14),
+                          style: GoogleFonts.montserrat(
+                            textStyle: TextStyle(
+                              fontSize: 13.0,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ],
                     ),

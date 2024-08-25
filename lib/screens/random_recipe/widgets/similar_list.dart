@@ -7,6 +7,9 @@ import 'package:food_recipe_app/screens/recipe_info/recipe_info_screen.dart';
 import '../../../models/similar_list.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+String capitalize(String s) =>
+    s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : '';
+
 class SimilarListWidget extends StatelessWidget {
   final List<Similar> items;
 
@@ -105,11 +108,12 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
               Container(
                 padding: const EdgeInsets.all(9),
                 child: Text(
-                  widget.items.name,
+                  capitalize(widget.items.name),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.chivo(
+                  style: GoogleFonts.playfairDisplay(
                     textStyle: const TextStyle(
+                      fontSize: 16.0,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
@@ -121,10 +125,11 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 child: Text(
                   "Ready in ${widget.items.readyInMinutes} Min",
-                  style: GoogleFonts.chivo(
-                    textStyle: const TextStyle(
-                      color: Colors.orange,
-                      fontWeight: FontWeight.w600,
+                  style: GoogleFonts.montserrat(
+                    textStyle: TextStyle(
+                      fontSize: 13.0,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

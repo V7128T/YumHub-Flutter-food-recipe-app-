@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/main.dart';
 import 'package:food_recipe_app/screens/authentication_screen/signin.dart';
@@ -8,8 +10,11 @@ import 'package:food_recipe_app/screens/profile_screen/bloc/profile_state.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:food_recipe_app/screens/authentication_screen/email_signup_page.dart';
+
+import '../../models/recent_activity.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -24,6 +29,8 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     // Load profile data when the page is initialized
     context.read<ProfileBloc>().add(LoadProfile());
+    print("Dispatching FetchRecentActivity event");
+    context.read<ProfileBloc>().add(FetchRecentActivity());
   }
 
   @override
@@ -49,11 +56,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   if (state is ProfileLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state is ProfileLoaded) {
+                    print(
+                        "ProfileLoaded state with ${state.recentActivity.length} activities");
                     return _buildAuthenticatedView(context, state);
                   } else if (state is ProfileError) {
                     return Center(child: Text(state.message));
                   } else {
-                    return Container();
+                    return const Center(child: CircularProgressIndicator());
                   }
                 },
               ),
@@ -132,44 +141,55 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.logout),
-              onPressed: () {
-                BlocProvider.of<ProfileBloc>(context, listen: false)
-                    .add(SignOut());
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('You have been signed out.'),
-                    duration: Duration(seconds: 5),
-                  ),
-                );
-                Future.delayed(
-                  const Duration(seconds: 2),
-                  () {
-                    navKey.currentState?.pushAndRemoveUntil(
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
-                      (route) => false,
-                    );
-                  },
-                );
+              onPressed: () async {
+                final shouldLogout =
+                    await showLogoutConfirmationDialog(context);
+                if (shouldLogout == true) {
+                  BlocProvider.of<ProfileBloc>(context, listen: false)
+                      .add(SignOut());
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('You have been signed out.'),
+                      duration: Duration(seconds: 5),
+                    ),
+                  );
+                  Future.delayed(
+                    const Duration(seconds: 2),
+                    () {
+                      navKey.currentState?.pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                        (route) => false,
+                      );
+                    },
+                  );
+                }
               },
             ),
           ],
         ),
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildProfileHeader(
-                    context, state.userName, state.profilePictureUrl),
-                const SizedBox(height: 20),
-                _buildStatisticsCard(state.recipesCount, state.likesCount),
-                const SizedBox(height: 20),
-                _buildAdditionalInfo(),
-                const SizedBox(height: 20),
-                _buildRecentActivity(),
-              ],
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.orange[50]!, Colors.orange[100]!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildProfileHeader(
+                      context, state.userName, state.profilePictureUrl),
+                  const SizedBox(height: 20),
+                  _buildStatisticsCard(state.recipesCount, state.likesCount),
+                  const SizedBox(height: 20),
+                  _buildRecentActivity(state.recentActivity),
+                ],
+              ),
             ),
           ),
         ),
@@ -232,8 +252,6 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             _buildStatItem(Icons.restaurant, 'Recipes', recipesCount),
             _buildStatItem(Icons.favorite, 'Likes', likesCount),
-            _buildStatItem(Icons.star, 'Rating',
-                4.5), // You can add more statistics as needed
           ],
         ),
       ),
@@ -254,34 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildAdditionalInfo() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('About Me',
-                style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Text(
-                'Passionate about cooking and trying new recipes. Love to share my culinary adventures!',
-                style: GoogleFonts.poppins(fontSize: 14)),
-            const SizedBox(height: 15),
-            Text('Favorite Cuisine: Italian',
-                style: GoogleFonts.poppins(fontSize: 14)),
-            Text('Cooking Level: Intermediate',
-                style: GoogleFonts.poppins(fontSize: 14)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecentActivity() {
+  Widget _buildRecentActivity(List<RecentActivity> activities) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -291,21 +282,25 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Recent Activity',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.playfairDisplaySc(
                     fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            _buildActivityItem(
-                'Added a new recipe: Spaghetti Carbonara', '2 days ago'),
-            _buildActivityItem('Liked Margherita Pizza recipe', '4 days ago'),
-            _buildActivityItem(
-                'Commented on Chocolate Cake recipe', '1 week ago'),
+            if (activities.isEmpty)
+              Text('No recent activity',
+                  style: GoogleFonts.playfairDisplaySc(color: Colors.grey))
+            else
+              Column(
+                children: activities
+                    .map((activity) => _buildActivityItem(activity))
+                    .toList(),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildActivityItem(String activity, String time) {
+  Widget _buildActivityItem(RecentActivity activity) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -317,10 +312,16 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(activity, style: GoogleFonts.poppins(fontSize: 14)),
-                Text(time,
-                    style:
-                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey)),
+                Text(
+                  '${activity.action} ${activity.item}',
+                  style: GoogleFonts.robotoSerif(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(DateFormat.yMMMd().add_jm().format(activity.timestamp),
+                    style: GoogleFonts.montserrat(
+                        fontSize: 12, color: Colors.grey)),
               ],
             ),
           ),
@@ -417,5 +418,39 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       );
     }
+  }
+
+  Future<bool?> showLogoutConfirmationDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Text('Confirm Logout',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold, color: Colors.orange[800])),
+          content: Text('Are you sure you want to log out?',
+              style: GoogleFonts.poppins()),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel',
+                  style: GoogleFonts.poppins(color: Colors.grey[600])),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[800],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text('Logout',
+                  style: GoogleFonts.poppins(color: Colors.white)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

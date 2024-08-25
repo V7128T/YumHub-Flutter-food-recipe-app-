@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../custom_colors/app_colors.dart';
+
 class More extends StatefulWidget {
   const More({super.key});
 
@@ -30,10 +32,10 @@ class _MoreState extends State<More> {
           backgroundColor: Colors.transparent,
           title: Text(
             "YumHub",
-            style: GoogleFonts.chivo(
-              textStyle: TextStyle(
+            style: GoogleFonts.playfairDisplay(
+              textStyle: const TextStyle(
                 fontSize: 28.0,
-                color: Colors.orange[800],
+                color: AppColors.secFont,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -108,7 +110,7 @@ class _MoreState extends State<More> {
           leading: Icon(icon, color: Colors.orange[800]),
           title: Text(
             title,
-            style: GoogleFonts.chivo(
+            style: GoogleFonts.robotoSerif(
               fontWeight: FontWeight.bold,
               fontSize: 18,
               color: Theme.of(context).primaryColor, // Changed title color
@@ -129,15 +131,19 @@ class _MoreState extends State<More> {
     return ListTile(
       title: Text(
         title,
-        style: TextStyle(
-          color: isLink ? Colors.blue[700] : Colors.black87,
-          fontWeight: isLink ? FontWeight.bold : FontWeight.normal,
+        style: GoogleFonts.robotoSerif(
+          textStyle: TextStyle(
+            color: isLink ? Colors.blue[700] : Colors.black87,
+            fontWeight: isLink ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
       subtitle: subtitle != null
           ? Text(
               subtitle,
-              style: const TextStyle(color: Colors.black54),
+              style: GoogleFonts.robotoSerif(
+                textStyle: const TextStyle(color: Colors.black54),
+              ),
             )
           : null,
       onTap: isLink

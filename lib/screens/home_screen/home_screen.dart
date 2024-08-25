@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/animation/animation.dart';
+import 'package:food_recipe_app/custom_colors/app_colors.dart';
 import 'package:food_recipe_app/models/food_type.dart';
 import 'package:food_recipe_app/screens/home_screen/bloc/homerecipe_bloc.dart';
 import 'package:food_recipe_app/screens/home_screen/bloc/homerecipe_event.dart';
@@ -13,6 +14,8 @@ import 'package:food_recipe_app/screens/search_results/search_result_screen.dart
 import 'package:food_recipe_app/widgets/loading_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../custom_dialogs/error_widget.dart';
+import '../search_page/cubit/search_page_state.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeRecipeScreen extends StatefulWidget {
   const HomeRecipeScreen({super.key});
@@ -52,10 +55,10 @@ class _HomeRecipeScreenState extends State<HomeRecipeScreen> {
           backgroundColor: Colors.transparent,
           title: Text(
             "YumHub",
-            style: GoogleFonts.chivo(
-              textStyle: TextStyle(
+            style: GoogleFonts.playfairDisplay(
+              textStyle: const TextStyle(
                 fontSize: 28.0,
-                color: Colors.orange[800],
+                color: AppColors.secFont,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -86,8 +89,8 @@ class _HomeRecipeScreenState extends State<HomeRecipeScreen> {
                 );
               } else if (state is HomeRecipesError) {
                 return ErrorDisplay(
-                  errorMessage: state.errorMessage
-                          .contains('API call limit reached')
+                  errorMessage: state.errorMessage.contains(
+                          'DioException [bad response]: This exception was thrown because the response has a status code of 402 and RequestOptions.validateStatus was configured to throw for this status code.')
                       ? "You've reached the daily limit of 150 API calls. Please try again tomorrow or upgrade your plan."
                       : state.errorMessage,
                 );
@@ -134,15 +137,18 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
       physics: const BouncingScrollPhysics(),
       children: [
         const SizedBox(height: 20),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: DelayedDisplay(
-            delay: Duration(microseconds: 600),
+            delay: const Duration(microseconds: 600),
             child: Text(
               "Simplest Way to Find \nTasty Food",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 26,
+              style: GoogleFonts.playfairDisplay(
+                textStyle: const TextStyle(
+                  fontSize: 25.0,
+                  color: AppColors.primFont,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -232,15 +238,17 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
                 Container(
                   width: 5,
                   height: 25,
-                  color: Colors.orange,
+                  color: AppColors.secFont,
                 ),
                 const SizedBox(width: 10),
                 Text(
                   name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.orange[800],
+                  style: GoogleFonts.playfairDisplay(
+                    textStyle: const TextStyle(
+                      fontSize: 20.0,
+                      color: AppColors.secFont,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -254,13 +262,14 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
                       create: (context) => SearchResultsBloc(),
                       child: SearchResults(
                         id: title,
+                        searchMode: SearchMode.regular,
                       ),
                     ),
                   ),
                 );
               },
               icon: const Icon(Icons.arrow_forward_sharp),
-              color: Colors.orange)
+              color: AppColors.secFont)
         ],
       ),
     );

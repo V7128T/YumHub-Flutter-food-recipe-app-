@@ -9,6 +9,7 @@ import 'package:food_recipe_app/screens/random_recipe/widgets/nutrients.dart';
 import 'package:food_recipe_app/screens/utils.dart';
 import 'package:food_recipe_app/models/user_ingredient_list.dart';
 import 'package:provider/provider.dart';
+import '../../../custom_colors/app_colors.dart';
 import '../../../models/equipment.dart';
 import '../../../models/nutrients.dart';
 import '../../../models/similar_list.dart';
@@ -39,23 +40,24 @@ class AddAllIngredientsButton extends StatefulWidget {
 class _AddAllIngredientsButtonState extends State<AddAllIngredientsButton>
     with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
-  late AnimationController _animationController;
-  late Animation<double> _sizeAnimation;
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+    _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
     );
-    _sizeAnimation =
-        Tween<double>(begin: 78.0, end: 250.0).animate(_animationController);
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -63,9 +65,9 @@ class _AddAllIngredientsButtonState extends State<AddAllIngredientsButton>
     setState(() {
       _isExpanded = !_isExpanded;
       if (_isExpanded) {
-        _animationController.forward();
+        _controller.forward();
       } else {
-        _animationController.reverse();
+        _controller.reverse();
       }
     });
   }
@@ -76,7 +78,7 @@ class _AddAllIngredientsButtonState extends State<AddAllIngredientsButton>
     }
   }
 
-  void _addAllIngredients(BuildContext context) {
+  void _addAllIngredients() {
     final userIngredientList =
         Provider.of<UserIngredientList>(context, listen: false);
     final user = FirebaseAuth.instance.currentUser;
@@ -90,9 +92,11 @@ class _AddAllIngredientsButtonState extends State<AddAllIngredientsButton>
       userIngredientList.addRecipe(recipe, user.uid);
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('All ingredients added to the ingredient manager.'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: const Text('All ingredients added to the ingredient manager.'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
     _toggleExpanded();
@@ -101,38 +105,52 @@ class _AddAllIngredientsButtonState extends State<AddAllIngredientsButton>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animationController,
+      animation: _controller,
       builder: (context, child) {
-        return SizedBox(
-          width: _sizeAnimation.value,
-          height: 65.0,
-          child: ElevatedButton.icon(
-            onPressed: _isExpanded
-                ? () => _addAllIngredients(context)
-                : _toggleExpanded,
-            icon: Icon(_isExpanded ? Icons.close : Icons.add),
-            label: _isExpanded
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      "Add All Ingredients",
-                      style: GoogleFonts.chivo(
-                        textStyle: const TextStyle(
-                          color: Colors.grey,
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: Container(
+            width: _isExpanded ? 200 : 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.orange[800],
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.orange.withOpacity(0.3),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: _isExpanded
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: _toggleExpanded,
+                      ),
+                      TextButton(
+                        onPressed: _addAllIngredients,
+                        child: Text(
+                          'Add All',
+                          style: GoogleFonts.chivo(
+                            textStyle: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   )
-                : const SizedBox.shrink(),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(35.0),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              alignment: Alignment.center,
-            ),
+                : IconButton(
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    onPressed: _toggleExpanded,
+                  ),
           ),
         );
       },
@@ -160,14 +178,14 @@ class RecipeInfoWidget extends StatefulWidget {
   State<RecipeInfoWidget> createState() => _RecipeInfoWidgetState();
 }
 
+final GlobalKey<_AddAllIngredientsButtonState> _addIngredientsButtonKey =
+    GlobalKey<_AddAllIngredientsButtonState>();
+
+void _handleTapOutside() {
+  _addIngredientsButtonKey.currentState?.handleTapOutside();
+}
+
 class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
-  final GlobalKey<_AddAllIngredientsButtonState> _addIngredientsButtonKey =
-      GlobalKey<_AddAllIngredientsButtonState>();
-
-  void _handleTapOutside() {
-    _addIngredientsButtonKey.currentState?.handleTapOutside();
-  }
-
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -181,7 +199,7 @@ class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Colors.orange[50]!, Colors.orange[100]!],
+                colors: [Colors.orange[50]!, Colors.orange[200]!],
               ),
             ),
             child: GestureDetector(
@@ -190,15 +208,15 @@ class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
                 slivers: [
                   SliverPersistentHeader(
                     delegate:
-                        MySliverAppBar(expandedHeight: 300, info: widget.info),
+                        MySliverAppBar(expandedHeight: 350, info: widget.info),
                     pinned: true,
                   ),
                   SliverToBoxAdapter(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildRecipeTitle(),
-                        _buildRecipeInfo(),
+                        const SizedBox(
+                            height: 70), // Add space for the overlapping box
                         _buildIngredients(),
                         _buildInstructions(),
                         _buildUtensils(),
@@ -215,88 +233,6 @@ class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
           _buildAddIngredientsButton(isAnonymous),
         ],
       ),
-    );
-  }
-
-  Widget _buildRecipeTitle() {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Text(
-        widget.info.title!,
-        style: GoogleFonts.chivo(
-          textStyle: TextStyle(
-            fontSize: 28.0,
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecipeInfo() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.orange.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildInfoItem("${widget.info.readyInMinutes} Min", "Prep. time"),
-            _buildInfoDivider(),
-            _buildInfoItem(widget.info.servings.toString(), "Servings"),
-            _buildInfoDivider(),
-            _buildInfoItem('\$${widget.info.pricePerServing}', "Price/Serving"),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoItem(String value, String label) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: GoogleFonts.chivo(
-              textStyle: TextStyle(
-                fontSize: 18.0,
-                color: Colors.orange[800],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Text(
-            label,
-            style: GoogleFonts.chivo(
-              textStyle: const TextStyle(
-                fontSize: 12.0,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoDivider() {
-    return Container(
-      height: 30,
-      width: 1,
-      color: Colors.orange[200],
     );
   }
 
@@ -384,10 +320,11 @@ class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
               Expanded(
                 child: Text(
                   step.step ?? '',
-                  style: GoogleFonts.chivo(
+                  style: GoogleFonts.robotoSerif(
                     textStyle: const TextStyle(
                       fontSize: 14.0,
                       color: Colors.black87,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -420,7 +357,7 @@ class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
         const SizedBox(height: 8),
         Text(
           title,
-          style: GoogleFonts.chivo(
+          style: GoogleFonts.poppins(
             textStyle: TextStyle(
               fontSize: 14.0,
               color: Colors.orange[800],
@@ -430,11 +367,11 @@ class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
         ),
         ...items.map((item) => Text(
               "- $item",
-              style: GoogleFonts.chivo(
+              style: GoogleFonts.montserrat(
                 textStyle: const TextStyle(
-                  fontSize: 12.0,
-                  color: Colors.grey,
-                ),
+                    fontSize: 12.0,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.normal),
               ),
             )),
       ],
@@ -478,10 +415,10 @@ class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
         children: [
           Text(
             title,
-            style: GoogleFonts.chivo(
-              textStyle: TextStyle(
+            style: GoogleFonts.playfairDisplay(
+              textStyle: const TextStyle(
                 fontSize: 22.0,
-                color: Colors.orange[800],
+                color: AppColors.secFont,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -496,23 +433,19 @@ class _RecipeInfoWidgetState extends State<RecipeInfoWidget> {
   Widget _buildAddIngredientsButton(bool isAnonymous) {
     return Positioned(
       bottom: 25,
-      right: 35,
+      right: 25,
       child: isAnonymous
           ? ElevatedButton(
               onPressed: () => showGuestOverlay(context),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.orange[800],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40.0),
-                ),
-                padding: const EdgeInsets.all(13.0),
-                minimumSize: const Size(70, 70),
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(16),
               ),
-              child: const Icon(Icons.add, size: 30.0),
+              child: const Icon(Icons.add, size: 30),
             )
           : AddAllIngredientsButton(
-              key: _addIngredientsButtonKey,
               ingredients: widget.info.extendedIngredients,
               recipeId: widget.recipeId,
               recipeTitle: widget.info.title ?? 'Unknown Recipe',

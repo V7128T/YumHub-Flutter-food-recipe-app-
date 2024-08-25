@@ -9,12 +9,15 @@ import 'package:food_recipe_app/screens/search_results/bloc/search_result_event.
 import 'package:food_recipe_app/screens/search_results/bloc/search_result_state.dart';
 import 'package:food_recipe_app/widgets/loading_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:url_launcher/url_launcher.dart';
+import '../../custom_colors/app_colors.dart';
 import '../../custom_dialogs/error_widget.dart';
+import '../search_page/cubit/search_page_state.dart';
 
 class SearchResults extends StatefulWidget {
   final String id;
-  const SearchResults({super.key, required this.id});
+  final SearchMode searchMode;
+  const SearchResults({super.key, required this.id, required this.searchMode});
 
   @override
   State<SearchResults> createState() => _SearchResultsState();
@@ -26,7 +29,7 @@ class _SearchResultsState extends State<SearchResults> {
   @override
   void initState() {
     bloc = BlocProvider.of<SearchResultsBloc>(context);
-    bloc.add(LoadSearchResults(name: widget.id));
+    bloc.add(LoadSearchResults(name: widget.id, mode: widget.searchMode));
     super.initState();
   }
 
@@ -40,10 +43,10 @@ class _SearchResultsState extends State<SearchResults> {
         iconTheme: IconThemeData(color: Colors.orange[800]),
         title: Text(
           "YumHub",
-          style: GoogleFonts.chivo(
-            textStyle: TextStyle(
+          style: GoogleFonts.playfairDisplay(
+            textStyle: const TextStyle(
               fontSize: 28.0,
-              color: Colors.orange[800],
+              color: AppColors.secFont,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -63,47 +66,26 @@ class _SearchResultsState extends State<SearchResults> {
               if (state is SearchResultsLoading) {
                 return const Center(child: LoadingWidget());
               } else if (state is SearchResultsSuccess) {
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Search Results for "${widget.id}"',
-                        style: GoogleFonts.chivo(
-                          textStyle: TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.orange[800],
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                          itemCount: state.results.length,
-                          itemBuilder: (context, index) {
-                            return SearchResultItem(
-                                result: state.results[index]);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                return _buildSearchResultsLayout(state.results);
               } else if (state is SearchResultsError) {
                 return ErrorDisplay(
-                  errorMessage: state.errorMessage
-                          .contains('API call limit reached')
+                  errorMessage: state.errorMessage.contains(
+                          'DioException [bad response]: This exception was thrown because the response has a status code of 402 and RequestOptions.validateStatus was configured to throw for this status code.')
                       ? "You've reached the daily limit of 150 API calls. Please try again tomorrow or upgrade your plan."
                       : state.errorMessage,
+                );
+              } else if (state is SearchResultsEmpty) {
+                return Center(
+                  child: Text(
+                    _getEmptyMessage(),
+                    style: GoogleFonts.chivo(
+                      textStyle: TextStyle(
+                        fontSize: 18.0,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 );
               } else {
                 return const Center(
@@ -113,6 +95,152 @@ class _SearchResultsState extends State<SearchResults> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  String _getEmptyMessage() {
+    switch (widget.searchMode) {
+      case SearchMode.regular:
+        return "No recipes found for '${widget.id}'. Try a different search term.";
+      case SearchMode.ingredients:
+        return "No recipes found with the ingredients: ${widget.id}. Try different ingredients or combinations.";
+      case SearchMode.videos:
+        return "No recipe videos found for '${widget.id}'. Try a different search term.";
+    }
+  }
+
+  Widget _buildSearchResultsLayout(List<SearchResult> results) {
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(16.0),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Search Results',
+                  style: GoogleFonts.playfairDisplay(
+                    textStyle: TextStyle(
+                      fontSize: 24.0,
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'for "${widget.id}"',
+                  style: GoogleFonts.playfairDisplay(
+                    textStyle: TextStyle(
+                      fontSize: 18.0,
+                      color: Theme.of(context).primaryColor,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '${results.length} ${widget.searchMode == SearchMode.videos ? 'videos' : 'recipes'} found',
+                  style: GoogleFonts.montserrat(
+                    textStyle: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.all(16.0),
+          sliver: widget.searchMode == SearchMode.videos
+              ? SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildVideoItem(results[index]),
+                    childCount: results.length,
+                  ),
+                )
+              : SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.75,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return SearchResultItem(result: results[index]);
+                    },
+                    childCount: results.length,
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVideoItem(SearchResult video) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: ListTile(
+        leading: CachedNetworkImage(
+          imageUrl: video.image,
+          width: 100,
+          height: 60,
+          fit: BoxFit.cover,
+        ),
+        title: Text(
+          video.name,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.montserrat(
+            textStyle: const TextStyle(
+              fontSize: 15.0,
+              color: AppColors.secFont,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        subtitle: Text(
+          video.views != null
+              ? '${video.views} views'
+              : 'Tap to watch on YouTube',
+          style: GoogleFonts.montserrat(
+            textStyle: TextStyle(
+              fontSize: 12.0,
+              color: Colors.grey[600],
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
+        trailing: video.rating != null
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    video.rating!.toStringAsFixed(1),
+                    style: GoogleFonts.montserrat(fontSize: 12),
+                  ),
+                ],
+              )
+            : null,
+        onTap: () async {
+          final youtubeUrl = Uri.parse(
+              'https://www.youtube.com/watch?v=${video.youTubeId ?? video.id}');
+          if (await canLaunchUrl(youtubeUrl)) {
+            await launchUrl(youtubeUrl);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Could not open YouTube video')),
+            );
+          }
+        },
       ),
     );
   }
@@ -177,16 +305,32 @@ class SearchResultItem extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Text(
-                result.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.chivo(
-                  textStyle: const TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    result.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.playfairDisplay(
+                      textStyle: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tap to see details',
+                    style: GoogleFonts.montserrat(
+                      textStyle: TextStyle(
+                        fontSize: 12.0,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

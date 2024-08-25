@@ -19,6 +19,7 @@ import 'package:food_recipe_app/screens/shopping_list/shopping_list_manager.dart
 import 'package:food_recipe_app/screens/shopping_list/shopping_list_screen.dart';
 import 'package:uuid/uuid.dart';
 import 'package:food_recipe_app/screens/utils.dart';
+import '../../custom_colors/app_colors.dart';
 import '../profile_screen/bloc/profile_bloc.dart';
 
 class IngredientManagerPage extends StatefulWidget {
@@ -97,10 +98,10 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
         backgroundColor: Colors.transparent,
         title: Text(
           'Grocery List',
-          style: GoogleFonts.chivo(
-            textStyle: TextStyle(
-              fontSize: 28.0,
-              color: Colors.orange[800],
+          style: GoogleFonts.playfairDisplay(
+            textStyle: const TextStyle(
+              fontSize: 25.0,
+              color: AppColors.secFont,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -110,11 +111,12 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
             : [
                 IconButton(
                   icon: Icon(_showCombinedView ? Icons.list : Icons.grid_view,
-                      color: Colors.orange[800]),
+                      color: AppColors.primFont),
                   onPressed: _toggleViewMode,
                 ),
                 IconButton(
-                  icon: Icon(Icons.shopping_cart, color: Colors.orange[800]),
+                  icon: const Icon(Icons.shopping_cart,
+                      color: AppColors.primFont),
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -205,9 +207,13 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
       ),
       child: FloatingActionButton(
         onPressed: () => _showDeleteHistory(context),
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.primFont,
         elevation: 0,
-        child: const Icon(Icons.history, color: Colors.white),
+        child: const Icon(
+          Icons.history,
+          color: AppColors.defaultWhite,
+          size: 27,
+        ),
       ),
     );
   }
@@ -217,11 +223,12 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.restaurant_menu, size: 64.0, color: Colors.orange[300]),
+          const Icon(Icons.restaurant_menu,
+              size: 64.0, color: AppColors.primFont),
           const SizedBox(height: 16.0),
           Text(
             'No ingredients added yet.',
-            style: GoogleFonts.chivo(
+            style: GoogleFonts.robotoSerif(
               textStyle: TextStyle(
                 fontSize: 18.0,
                 color: Colors.orange[800],
@@ -322,6 +329,15 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                 child: Dismissible(
                   key: uniqueKey,
                   direction: DismissDirection.endToStart,
+                  confirmDismiss: (DismissDirection direction) async {
+                    return await showRecipeDeleteConfirmationDialog(context);
+                  },
+                  background: Container(
+                    color: Colors.red.shade100,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Icon(Icons.delete, color: Colors.red.shade700),
+                  ),
                   onDismissed: (_) {
                     final user = FirebaseAuth.instance.currentUser;
                     if (user != null) {
@@ -364,19 +380,22 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
                       ),
                       title: Text(
                         recipe.title ?? 'Unknown Recipe',
-                        style: GoogleFonts.chivo(
-                          textStyle: TextStyle(
+                        style: GoogleFonts.playfairDisplay(
+                          textStyle: const TextStyle(
                             fontSize: 16.0,
-                            color: Theme.of(context).primaryColor,
+                            color: AppColors.secFont,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                       subtitle: Text(
                         'Added on ${_formatDate(recipe.dateAdded)}',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            fontSize: 12.0,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                       trailing: Checkbox(
@@ -480,6 +499,9 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
     return Dismissible(
       key: uniqueKey,
       direction: DismissDirection.endToStart,
+      confirmDismiss: (DismissDirection direction) async {
+        return await showIngredientDeleteConfirmationDialog(context);
+      },
       onDismissed: (_) => _removeIngredient(ingredient, recipe),
       background: Container(
         color: Colors.red.shade100,
@@ -496,11 +518,11 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
         child: ListTile(
           title: Text(
             ingredient.name ?? '',
-            style: GoogleFonts.chivo(
-              textStyle: TextStyle(
-                fontSize: 16.0,
-                color: Colors.orange[800],
-                fontWeight: FontWeight.w500,
+            style: GoogleFonts.montserratAlternates(
+              textStyle: const TextStyle(
+                fontSize: 14.0,
+                color: AppColors.secFont,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -692,4 +714,74 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
   }
 
   bool get _hasSelectedIngredients => _selectedIngredients.isNotEmpty;
+
+  Future<bool?> showIngredientDeleteConfirmationDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Text('Confirm Delete',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold, color: Colors.orange[800])),
+          content: Text(
+              'Are you sure you want to remove this ingredient from this recipe?',
+              style: GoogleFonts.poppins()),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel',
+                  style: GoogleFonts.poppins(color: Colors.grey[600])),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[800],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text('Delete',
+                  style: GoogleFonts.poppins(color: Colors.white)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool?> showRecipeDeleteConfirmationDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Text('Confirm Delete',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold, color: Colors.orange[800])),
+          content: Text(
+              'Are you sure you want to remove this recipe from the list?',
+              style: GoogleFonts.poppins()),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel',
+                  style: GoogleFonts.poppins(color: Colors.grey[600])),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[800],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text('Delete',
+                  style: GoogleFonts.poppins(color: Colors.white)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
