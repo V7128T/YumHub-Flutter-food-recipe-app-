@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_recipe_app/main.dart';
 import 'package:food_recipe_app/screens/authentication_screen/signin.dart';
@@ -124,76 +122,85 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildAuthenticatedView(BuildContext context, ProfileLoaded state) {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 200.0,
-          floating: false,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-            background: Image.network(
-              state.profilePictureUrl.isNotEmpty
-                  ? state.profilePictureUrl
-                  : 'https://images.unsplash.com/photo-1420624226293-19b680e38dd6?q=80&w=2608&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-              fit: BoxFit.cover,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () async {
-                final shouldLogout =
-                    await showLogoutConfirmationDialog(context);
-                if (shouldLogout == true) {
-                  BlocProvider.of<ProfileBloc>(context, listen: false)
-                      .add(SignOut());
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('You have been signed out.'),
-                      duration: Duration(seconds: 5),
-                    ),
-                  );
-                  Future.delayed(
-                    const Duration(seconds: 2),
-                    () {
-                      navKey.currentState?.pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                        (route) => false,
-                      );
-                    },
-                  );
-                }
-              },
-            ),
-          ],
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.orange[50]!, Colors.orange[100]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        SliverToBoxAdapter(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.orange[50]!, Colors.orange[100]!],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+      ),
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200.0,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Image.network(
+                state.profilePictureUrl.isNotEmpty
+                    ? state.profilePictureUrl
+                    : 'https://images.unsplash.com/photo-1420624226293-19b680e38dd6?q=80&w=2608&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                fit: BoxFit.cover,
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildProfileHeader(
-                      context, state.userName, state.profilePictureUrl),
-                  const SizedBox(height: 20),
-                  _buildStatisticsCard(state.recipesCount, state.likesCount),
-                  const SizedBox(height: 20),
-                  _buildRecentActivity(state.recentActivity),
-                ],
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () async {
+                  final shouldLogout =
+                      await showLogoutConfirmationDialog(context);
+                  if (shouldLogout == true) {
+                    BlocProvider.of<ProfileBloc>(context, listen: false)
+                        .add(SignOut());
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('You have been signed out.'),
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
+                    Future.delayed(
+                      const Duration(seconds: 2),
+                      () {
+                        navKey.currentState?.pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                          (route) => false,
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.orange[50]!, Colors.orange[100]!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProfileHeader(
+                        context, state.userName, state.profilePictureUrl),
+                    const SizedBox(height: 20),
+                    _buildStatisticsCard(state.recipesCount, state.likesCount),
+                    const SizedBox(height: 20),
+                    _buildRecentActivity(state.recentActivity),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

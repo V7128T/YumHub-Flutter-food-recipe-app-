@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../custom_colors/app_colors.dart';
 import '../../../models/nutrients.dart';
 import 'package:google_fonts/google_fonts.dart';
 

@@ -15,7 +15,6 @@ import 'package:food_recipe_app/widgets/loading_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../custom_dialogs/error_widget.dart';
 import '../search_page/cubit/search_page_state.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class HomeRecipeScreen extends StatefulWidget {
   const HomeRecipeScreen({super.key});

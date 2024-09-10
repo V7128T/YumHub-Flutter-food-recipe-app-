@@ -243,63 +243,87 @@ class _IngredientManagerPageState extends State<IngredientManagerPage> {
 
   Widget _buildCategorizedView(
       List<CategorizedIngredients> categorizedIngredients) {
-    return Stack(
-      children: [
-        ListView.builder(
-          padding: const EdgeInsets.only(bottom: 70, top: 10),
-          itemCount: categorizedIngredients.length,
-          itemBuilder: (context, index) {
-            final category = categorizedIngredients[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ExpansionTile(
-                title: Text(
-                  category.category,
-                  style: GoogleFonts.chivo(
-                    textStyle: TextStyle(
-                      fontSize: 18.0,
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
+    return StatefulBuilder(
+      builder: (BuildContext context, StateSetter setState) {
+        return Stack(
+          children: [
+            ListView.builder(
+              padding: const EdgeInsets.only(bottom: 70, top: 10),
+              itemCount: categorizedIngredients.length,
+              itemBuilder: (context, index) {
+                final category = categorizedIngredients[index];
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ExpansionTile(
+                    title: Text(
+                      category.category,
+                      style: GoogleFonts.chivo(
+                        textStyle: TextStyle(
+                          fontSize: 18.0,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    children: category.ingredients.map((ingredient) {
+                      // Find the recipe that contains this ingredient
+                      Recipe? containingRecipe =
+                          _findRecipeForIngredient(ingredient);
+                      return _buildIngredientTile(
+                        ingredient,
+                        containingRecipe,
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+            if (_hasSelectedIngredients)
+              Positioned(
+                bottom: 20,
+                left: 20,
+                right: 20,
+                child: ElevatedButton(
+                  onPressed: _addToShoppingList,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange[800],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: Text(
+                    "Add to Shopping List",
+                    style: GoogleFonts.chivo(
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      ),
                     ),
                   ),
                 ),
-                children: category.ingredients
-                    .map((ingredient) => _buildIngredientTile(ingredient, null))
-                    .toList(),
               ),
-            );
-          },
-        ),
-        if (_hasSelectedIngredients)
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: ElevatedButton(
-              onPressed: _addToShoppingList,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange[800],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: Text(
-                "Add to Shopping List",
-                style: GoogleFonts.chivo(
-                  textStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
+          ],
+        );
+      },
     );
+  }
+
+  Recipe? _findRecipeForIngredient(ExtendedIngredient ingredient) {
+    final userIngredientList =
+        Provider.of<UserIngredientList>(context, listen: false);
+    for (var recipe in userIngredientList.userRecipes.values) {
+      if (recipe.extendedIngredients
+              ?.any((i) => i.uniqueId == ingredient.uniqueId) ??
+          false) {
+        return recipe;
+      }
+    }
+    return null;
   }
 
   Widget _buildRecipeView(UserIngredientList userIngredientList) {
