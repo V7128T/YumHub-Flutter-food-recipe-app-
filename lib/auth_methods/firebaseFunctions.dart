@@ -9,16 +9,24 @@ import 'package:food_recipe_app/screens/profile_screen/bloc/profile_bloc.dart';
 import 'package:food_recipe_app/screens/profile_screen/bloc/profile_event.dart';
 
 class FirestoreServices {
-  static saveUser(String email, String uid, String name,
+  static Future<void> saveUser(String name, String email, String uid,
       List<ExtendedIngredient> initialIngredients) async {
-    await FirebaseFirestore.instance.collection('users').doc(uid).set({
-      'email': email,
-      'id': uid,
-      'name': name,
-      'imgUrl': "assets/default-pfp.jpg",
-      'ingredients':
-          initialIngredients.map((ingredient) => ingredient.toJson()).toList(),
-    });
+    await FirebaseFirestore.instance.collection('users').doc(uid).set(
+        {
+          'email': email,
+          'id': uid,
+          'name': name,
+          'imgUrl':
+              "assets/default-pfp.jpg", // You might want to use the Google profile picture URL for Google sign-ins
+          'ingredients': initialIngredients
+              .map((ingredient) => ingredient.toJson())
+              .toList(),
+          'recipes': {}, // Initialize with an empty map of recipes
+          'recipes_count': 0, // Initialize recipe count to 0
+        },
+        SetOptions(
+            merge:
+                true)); // Use merge to update existing documents without overwriting
   }
 
   static deleteUser(String uid) async {
