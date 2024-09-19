@@ -106,7 +106,11 @@ class _EmailSignUpState extends State<EmailSignUp> {
         await FirebaseAuth.instance.currentUser!
             .updateDisplayName(nameController.text.trim());
         await FirestoreServices.saveUser(
-            emailController.text.trim(), uid, nameController.text.trim(), []);
+          nameController.text.trim(),
+          emailController.text.trim(),
+          uid,
+          [],
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(

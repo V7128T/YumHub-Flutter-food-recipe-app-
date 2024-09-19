@@ -13,5 +13,5 @@ class ApiKey {
   //14bfcec088134d70b33dca81c47ff893
   //ae996740e4984c0f92a93491a0c19006
   //5349fe3bba0e4936a72b463728c1f1ac
-  static String keys = '5349fe3bba0e4936a72b463728c1f1ac';
+  static String keys = '2113efbc4287448db6a2f5781f1be8cf';
 }
